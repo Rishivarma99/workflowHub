@@ -1,0 +1,24 @@
+/* ============================================================
+ * Workflow Hub - global styles entry point
+ * Tailwind is the single styling entry (see ai-rules tailwind-intergration.md).
+ * Design tokens, base styles, and centralized overrides are imported here.
+ * Feature code should only use Tailwind utility classes + tokens.
+ * ============================================================ */
+
+/* Tailwind CSS v4 - single entry import. */
+@use 'tailwindcss';
+
+/* Design tokens (CSS variables). */
+@use 'styles/tokens/colors.css';
+@use 'styles/tokens/spacing.css';
+@use 'styles/tokens/radius.css';
+@use 'styles/tokens/typography.css';
+@use 'styles/tokens/shadows.css';
+
+/* Base element styling. */
+@use 'styles/base/reset.scss';
+
+/* Centralized third-party overrides live under:
+ *   styles/prime-overrides/  (PrimeNG)
+ *   styles/ag-grid/          (AG Grid)
+ * Add imports here as those layers are introduced. */

@@ -1,0 +1,4 @@
+[submodule "ai-rules"]
+	path = ai-rules
+	url = https://gitlab.pal.tech/rishi.alluri/ai-rules.git
+	branch = rishi/rules-1

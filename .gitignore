@@ -1,0 +1,22 @@
+# ---- .NET ----
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+.vs/
+
+# ---- Node / Angular ----
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+
+# ---- Env / secrets ----
+*.env
+.env.local
+appsettings.*.Local.json
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+*.swp

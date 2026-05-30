@@ -1,0 +1,13 @@
+/* Color design tokens. Tailwind theme + PrimeNG map to these CSS variables. */
+:root {
+  --color-primary: #4f46e5;
+  --color-primary-foreground: #ffffff;
+
+  --color-surface: #ffffff;
+  --color-surface-muted: #f8fafc;
+
+  --color-border: #e5e7eb;
+
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+}

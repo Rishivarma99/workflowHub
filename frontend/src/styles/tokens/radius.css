@@ -1,0 +1,5 @@
+/* Radius design tokens. */
+:root {
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+}
