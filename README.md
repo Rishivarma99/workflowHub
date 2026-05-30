@@ -13,16 +13,19 @@ See [`workflowHub-prd-v2.md`](workflowHub-prd-v2.md) for the full product spec.
 |---|---|
 | `frontend/` | Angular 20 app — Tailwind + PrimeNG |
 | `backend/` | .NET 8 solution — 4-layer CQRS, EF Core + PostgreSQL, JWT auth |
-| `ai-rules/` | Mandatory coding-standards library (git submodule) |
-| `CLAUDE.md` | Guidance for Claude Code, incl. how to use `ai-rules/` |
+| `CLAUDE.md` | Guidance for Claude Code, incl. how to use the rules |
+
+The mandatory coding-standards library lives in a **separate sibling repo**, `../ai-rules/`, kept
+checked out next to this one. It is referenced by relative path (no copy is stored here), so edits
+in `ai-rules/` are always the latest. See `CLAUDE.md` for the rule-loading protocol.
 
 ## Getting started
 
 ```bash
-# clone with the rules submodule
-git clone <repo-url>
+# from a parent folder, check out both repos side by side
+git clone https://gitlab.pal.tech/rishi.alluri/ai-rules.git    # the rules (sibling)
+git clone <workflowhub-repo-url> workflowHub
 cd workflowHub
-git submodule update --init --recursive
 
 # frontend
 cd frontend && npm install && npm start
@@ -30,6 +33,8 @@ cd frontend && npm install && npm start
 # backend (uses .NET 8 via backend/global.json)
 cd backend && dotnet build && dotnet run --project src/WorkflowHub.Api
 ```
+
+> Keep `ai-rules/` and `workflowHub/` in the **same parent folder** so `../ai-rules/` resolves.
 
 ## Stack
 

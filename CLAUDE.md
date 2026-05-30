@@ -6,15 +6,17 @@ Guidance for Claude Code when working in this repository.
 
 ## ⚠️ Rule 0 — The coding rules in `ai-rules/` are MANDATORY
 
-This repo carries a coding-standards library at [`ai-rules/`](ai-rules/) (a git submodule).
+The coding-standards library lives in a **sibling folder**, `../ai-rules/` (a separate git repo,
+kept open alongside this one in the same workspace). It is the single source of truth — edits are
+made there and are always the latest; this repo does **not** keep a copy.
 **Every code change must follow those rules.** They are not optional and not suggestions.
 
-But: **do NOT load the whole `ai-rules/` tree into context.** It is large and most of it is
+But: **do NOT load the whole `../ai-rules/` tree into context.** It is large and most of it is
 irrelevant to any single task. Loading everything wastes context and degrades quality.
 
 ### How to use the rules (the loading protocol — follow this every time)
 
-1. **Start at the master index:** [`ai-rules/RULES-INDEX.md`](ai-rules/RULES-INDEX.md).
+1. **Start at the master index:** `../ai-rules/RULES-INDEX.md`.
 2. **Classify the task** — frontend (Angular), backend (.NET), or both.
 3. **Open the matching domain sub-index** and the **Task → rules map** in `RULES-INDEX.md`,
    then load **only** the 2–5 rule files that match the task — plus the domain's
@@ -22,12 +24,12 @@ irrelevant to any single task. Loading everything wastes context and degrades qu
 4. If you're loading more than ~6 rule files for one task, re-scope — you're loading too much.
 5. When a task spans both stacks, load the relevant slice from each domain, not both whole trees.
 
-> Quick path: read `ai-rules/RULES-INDEX.md` → find your task row → open only those files.
+> Quick path: read `../ai-rules/RULES-INDEX.md` → find your task row → open only those files.
 
-The submodule must be initialized after clone:
-```bash
-git submodule update --init --recursive
-```
+> **Setup note:** the rules are referenced by relative path, so keep `ai-rules/` checked out as a
+> sibling of `workflowHub/` in the same parent folder (`.../GitHub/ai-rules` next to
+> `.../GitHub/workflowHub`). If the rules aren't found at `../ai-rules/`, clone them there:
+> `git clone https://gitlab.pal.tech/rishi.alluri/ai-rules.git ../ai-rules`
 
 ---
 
@@ -61,23 +63,24 @@ Full product spec: [`workflowHub-prd-v2.md`](workflowHub-prd-v2.md). Read it for
 ## Repository layout
 
 ```
-workflowHub/
-├── CLAUDE.md                 <- you are here
-├── workflowHub-prd-v2.md     <- product spec (source of truth for features)
-├── ai-rules/                 <- MANDATORY coding rules (git submodule) — load selectively
+GitHub/
+├── ai-rules/                 <- MANDATORY coding rules (separate sibling repo) — load selectively
 │   └── RULES-INDEX.md        <- START HERE to pick rules
-├── frontend/                 <- Angular 20 app (Tailwind + PrimeNG)
-│   └── src/app/
-│       ├── core/             <- singletons: services, guards, interceptors, config
-│       ├── shared/           <- reusable UI, pipes, directives, models, types
-│       └── features/         <- feature areas (auth, workflows, home)
-└── backend/                  <- .NET 8 solution (4-layer CQRS)
-    ├── global.json           <- pins .NET 8 SDK
-    └── src/
-        ├── WorkflowHub.Api/          <- thin controllers + composition (Program.cs stays thin)
-        ├── WorkflowHub.Application/  <- CQRS commands/queries/handlers, services
-        ├── WorkflowHub.Data/         <- EF Core: DbContext, entities, repositories, migrations
-        └── WorkflowHub.Common/       <- shared contracts (ApiResponse<T>), constants, errors
+└── workflowHub/              <- THIS repo
+    ├── CLAUDE.md             <- you are here
+    ├── workflowHub-prd-v2.md <- product spec (source of truth for features)
+    ├── frontend/             <- Angular 20 app (Tailwind + PrimeNG)
+    │   └── src/app/
+    │       ├── core/         <- singletons: services, guards, interceptors, config
+    │       ├── shared/       <- reusable UI, pipes, directives, models, types
+    │       └── features/     <- feature areas (auth, workflows, home)
+    └── backend/              <- .NET 8 solution (4-layer CQRS)
+        ├── global.json       <- pins .NET 8 SDK
+        └── src/
+            ├── WorkflowHub.Api/          <- thin controllers + composition (Program.cs stays thin)
+            ├── WorkflowHub.Application/  <- CQRS commands/queries/handlers, services
+            ├── WorkflowHub.Data/         <- EF Core: DbContext, entities, repositories, migrations
+            └── WorkflowHub.Common/       <- shared contracts (ApiResponse<T>), constants, errors
 ```
 
 Dependency direction (backend): `Api → Application → Data → Common`. Nothing depends on `Api`.
@@ -112,4 +115,4 @@ dotnet run --project src/WorkflowHub.Api
 - **Keep `Program.cs` thin** and respect layer boundaries (see backend architecture rules).
 - **Project prefix is `wh`** for Angular selectors/components (e.g. `wh-root`).
 - Don't commit secrets (JWT keys, Google client secret) — see the PRD's non-functional requirements.
-- When you add/rename/remove a rule file, update `ai-rules/RULES-INDEX.md`.
+- When you add/rename/remove a rule file, update `../ai-rules/RULES-INDEX.md`.
