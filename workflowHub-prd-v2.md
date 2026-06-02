@@ -228,7 +228,7 @@ Workflow
 ### 5.2 Storage strategy (the key decision)
 - **No permanent source copies.** A workflow is a pinned reference + metadata + manifest only.
 - **No backend download:** users clone from GitHub directly; we store no files and run no download jobs.
-- **Profile avatars:** stored in Supabase Storage (see Settings module doc) — unrelated to workflow source files.
+- **Profile avatars:** no upload/object storage. We reuse the Google account's `avatar_url` (captured at login from the Google ID token) as the profile picture — no file storage involved.
 - **Snapshotting (v2):** copying repo files into our storage as a permanent backup is a *reliability* upgrade for later — not a day-one need (see §7).
 
 ### 5.3 Search architecture

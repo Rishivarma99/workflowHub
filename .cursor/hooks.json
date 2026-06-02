@@ -3,7 +3,7 @@
   "hooks": {
     "sessionStart": [
       {
-        "command": ".cursor/hooks1/start-frontend.sh",
+        "command": ".cursor/hooks/start-frontend.sh",
         "timeout": 30
       }
     ]

@@ -16,6 +16,9 @@ npm-debug.log*
 .env.local
 appsettings.*.Local.json
 
+# ---- Brainstorm visual companion (local mockups) ----
+.superpowers/
+
 # ---- OS / editor ----
 .DS_Store
 Thumbs.db

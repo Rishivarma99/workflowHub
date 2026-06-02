@@ -1,0 +1,63 @@
+/* PalTech / Workflow Hub palette — aligned with workflowHub-design-reference */
+
+:root {
+  --font-display: 'Figtree', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-ui: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+
+  --white: #ffffff;
+  --grey-50: #f8f8f8;
+  --grey-100: #f2f2f2;
+  --grey-200: #e9e9e9;
+  --grey-300: #d9d9d9;
+  --grey-400: #bfbfbf;
+  --grey-500: #999a9a;
+  --grey-600: #7a7a7a;
+  --grey-700: #646464;
+  --grey-800: #4a4a4a;
+  --grey-900: #323232;
+  --grey-950: #1e1e1e;
+
+  --blue-50: #f7f7ff;
+  --blue-100: #ececfe;
+  --blue-200: #d9d9fd;
+  --blue-300: #c3c3fb;
+  --blue-500: #6466f3;
+  --blue-600: #5353ef;
+  --blue-700: #3a3ac8;
+  --blue-800: #2b2b9a;
+
+  --green-500: #1f845a;
+  --green-600: #176c49;
+  --red-50: #fff5f5;
+  --red-100: #ffe3e0;
+  --red-500: #c9372c;
+
+  --brand: var(--blue-600);
+  --brand-hover: var(--blue-700);
+  --brand-soft: var(--blue-100);
+  --brand-ring: var(--blue-300);
+
+  --bg-app: var(--grey-50);
+  --fg-1: var(--grey-900);
+  --fg-2: var(--grey-600);
+  --fg-3: var(--grey-500);
+  --fg-disabled: var(--grey-400);
+
+  --danger: var(--red-500);
+  --danger-bg: var(--red-50);
+
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 3px 50px rgba(0, 0, 0, 0.07);
+  --shadow-flat: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Bridge to existing Tailwind token names */
+  --color-primary: var(--brand);
+  --color-primary-foreground: var(--white);
+  --color-surface: var(--white);
+  --color-surface-muted: var(--grey-50);
+  --color-border: var(--grey-200);
+  --color-text: var(--fg-1);
+  --color-text-muted: var(--fg-2);
+}

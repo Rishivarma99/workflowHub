@@ -1,0 +1,35 @@
+<aside class="sidebar">
+  <div class="side-brand">
+    <span class="tb-mark"><wh-icon name="terminal-square" [size]="16" /></span>
+    Workflow Hub
+  </div>
+
+  <button type="button" class="btn btn-primary btn-block" (click)="createWorkflow.emit()">
+    <wh-icon name="plus" [size]="17" />
+    New workflow
+  </button>
+
+  <nav class="side-nav" aria-label="Registry">
+    <p class="eyebrow">Registry</p>
+    @for (item of nav; track item.id) {
+      <a
+        class="side-row"
+        [routerLink]="item.path"
+        routerLinkActive="on"
+        [attr.aria-current]="null"
+      >
+        <wh-icon [name]="item.icon" [size]="18" />
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <button type="button" class="side-user side-user-btn" (click)="openSettings.emit()" title="Settings">
+    <wh-avatar [name]="user().name" [size]="34" [color]="user().avatarColor" />
+    <div class="side-user-text">
+      <span class="side-user-name">{{ user().name }}</span>
+      <span class="side-user-email">{{ user().email }}</span>
+    </div>
+    <wh-icon name="settings" [size]="16" class="side-user-gear" />
+  </button>
+</aside>

@@ -1,0 +1,26 @@
+<div class="wh-app">
+  <div class="shell">
+    <wh-workflows-sidebar
+      [user]="user()"
+      (createWorkflow)="onCreateWorkflow()"
+      (openSettings)="onOpenSettings()"
+    />
+
+    <div class="col">
+      <wh-workflows-topbar
+        [user]="user()"
+        [searchQuery]="searchQuery()"
+        (searchQueryChange)="searchQuery.set($event)"
+        (submitSearch)="onSubmitSearch()"
+        (openSettings)="onOpenSettings()"
+        (signOut)="onSignOut()"
+      />
+
+      <main class="content">
+        <router-outlet />
+      </main>
+    </div>
+  </div>
+
+  <wh-workflows-tabbar (createWorkflow)="onCreateWorkflow()" />
+</div>

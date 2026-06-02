@@ -1,1 +1,42 @@
-/* Component-specific styling only. Prefer Tailwind utilities in the template. */
+:host {
+  display: block;
+  min-height: 100dvh;
+  background: var(--bg-app);
+  font-family: var(--font-ui);
+  color: var(--fg-1);
+}
+
+.wh-app {
+  container-type: inline-size;
+  container-name: wh-app;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-app);
+  position: relative;
+}
+
+.shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@container wh-app (min-width: 640px) {
+  .content {
+    padding-bottom: 0;
+  }
+}

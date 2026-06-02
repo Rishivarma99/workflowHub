@@ -1,0 +1,39 @@
+<header class="topbar">
+  <div class="tb-brand">
+    <span class="tb-mark"><wh-icon name="terminal-square" [size]="15" /></span>
+    Workflow Hub
+  </div>
+
+  <nav class="topbar-nav" aria-label="Registry">
+    @for (item of nav; track item.id) {
+      <a class="topbar-link" [routerLink]="item.path" routerLinkActive="on">{{ item.label }}</a>
+    }
+  </nav>
+
+  <form class="search tb-search" (submit)="onSearchSubmit($event)">
+    <wh-icon name="search" [size]="18" class="search-ico" />
+    <input
+      type="search"
+      [ngModel]="searchQuery()"
+      (ngModelChange)="onSearchInput($event)"
+      placeholder="Search workflows or capabilities…"
+      aria-label="Search workflows or capabilities"
+    />
+  </form>
+
+  <div class="tb-spacer"></div>
+
+  <button type="button" class="tb-icon" aria-label="Notifications">
+    <wh-icon name="bell" [size]="18" />
+  </button>
+
+  <div class="tb-user">
+    <button type="button" class="tb-user-btn" (click)="openSettings.emit()" title="Profile &amp; settings">
+      <wh-avatar [name]="user().name" [size]="30" [color]="user().avatarColor" />
+      <span class="tb-user-name">{{ user().name }}</span>
+    </button>
+    <button type="button" class="tb-icon tb-logout" (click)="signOut.emit()" title="Log out">
+      <wh-icon name="log-out" [size]="18" />
+    </button>
+  </div>
+</header>

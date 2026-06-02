@@ -9,6 +9,7 @@
 @use 'tailwindcss';
 
 /* Design tokens (CSS variables). */
+@use 'styles/tokens/palette.css';
 @use 'styles/tokens/colors.css';
 @use 'styles/tokens/spacing.css';
 @use 'styles/tokens/radius.css';
