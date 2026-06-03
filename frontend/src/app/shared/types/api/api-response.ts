@@ -1,19 +1,17 @@
 /**
  * Centralized transport contract types shared across all features.
- * Mirrors the backend api-response-contract. Feature folders consume these
- * primitives instead of redefining their own response/error/paging shapes.
+ * Mirrors the backend api-response-contract.
  */
 
 export interface ApiResponse<T> {
-  data: T;
   success: boolean;
-  message?: string;
+  data: T | null;
+  error: ApiError | null;
 }
 
 export interface ApiError {
   code: string;
   message: string;
-  details?: unknown;
 }
 
 export interface PagedResult<T> {

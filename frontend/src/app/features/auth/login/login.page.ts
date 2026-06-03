@@ -1,11 +1,12 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
+import { finalize, switchMap } from 'rxjs';
+import { AuthService } from '../../../core/auth/auth.service';
+import { GoogleIdentityService } from '../../../core/auth/google-identity.service';
 import { WhIconComponent } from '../../../shared/ui/icon/wh-icon.component';
+import { toUserFacingError } from '../../../shared/utils/api/to-user-facing-error';
 
-/**
- * Google sign-in screen. Auth wiring (GIS + POST /auth/google) lands in a follow-up;
- * Continue temporarily enters the authenticated shell for UI development.
- */
 @Component({
   selector: 'wh-login-page',
   standalone: true,
@@ -14,8 +15,14 @@ import { WhIconComponent } from '../../../shared/ui/icon/wh-icon.component';
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss'
 })
-export class LoginPage {
+export class LoginPageComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
+  private readonly googleIdentity = inject(GoogleIdentityService);
+
+  readonly loading = signal(false);
+  readonly error = signal<string | null>(null);
 
   readonly features = [
     {
@@ -37,7 +44,27 @@ export class LoginPage {
   ];
 
   continueWithGoogle(): void {
-    // TODO(auth): Google Identity Services → POST /auth/google → store tokens
-    void this.router.navigate(['/workflows/discover']);
+    if (this.loading()) {
+      return;
+    }
+
+    this.error.set(null);
+    this.loading.set(true);
+
+    this.googleIdentity
+      .promptOrRender()
+      .pipe(
+        switchMap((idToken) => this.auth.loginWithGoogleIdToken(idToken)),
+        takeUntilDestroyed(this.destroyRef),
+        finalize(() => this.loading.set(false))
+      )
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/workflows/discover']);
+        },
+        error: (err) => {
+          this.error.set(toUserFacingError(err));
+        }
+      });
   }
 }

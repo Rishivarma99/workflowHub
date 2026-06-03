@@ -14,8 +14,8 @@
     <wh-icon name="search" [size]="18" class="search-ico" />
     <input
       type="search"
-      [ngModel]="searchQuery()"
-      (ngModelChange)="onSearchInput($event)"
+      [value]="searchQuery()"
+      (input)="onSearchInput($event)"
       placeholder="Search workflows or capabilities…"
       aria-label="Search workflows or capabilities"
     />
@@ -29,7 +29,12 @@
 
   <div class="tb-user">
     <button type="button" class="tb-user-btn" (click)="openSettings.emit()" title="Profile &amp; settings">
-      <wh-avatar [name]="user().name" [size]="30" [color]="user().avatarColor" />
+      <wh-avatar
+        [name]="user().name"
+        [size]="30"
+        [color]="user().avatarColor"
+        [imageUrl]="user().avatarUrl ?? null"
+      />
       <span class="tb-user-name">{{ user().name }}</span>
     </button>
     <button type="button" class="tb-icon tb-logout" (click)="signOut.emit()" title="Log out">

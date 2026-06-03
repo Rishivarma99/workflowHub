@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { Toast } from 'primeng/toast';
 
 /**
  * Root application shell. Renders the active route into the router outlet.
@@ -7,7 +8,9 @@ import { RouterOutlet } from '@angular/router';
  */
 @Component({
   selector: 'wh-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet, Toast],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

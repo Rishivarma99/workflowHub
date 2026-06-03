@@ -1,41 +1,42 @@
 # Settings Module
 
-**Status:** Spec drafted · **Last updated:** 30 May 2026
+**Status:** Spec drafted · **Last updated:** June 2026
 **Depends on:** Auth module (a logged-in user + our JWT).
+**Design reference:** `workflow-design-reference/screens4.jsx` — single **Settings** screen with user profile/details (not a separate “user management” admin area).
 
 ---
 
 ## 1. Purpose & placement
 
-The **Settings** module is the area where a logged-in user manages their account. It is reached
-from the **app sidebar → Settings**. Settings has its own inner navigation (a sub-sidebar or tabs);
-its first and only MVP sub-section is **User Management**.
+The **Settings** screen is where the logged-in user views and edits **their own** profile and account preferences (name, username, role, team, bio, notification toggles, sign-out). It matches the Dentova / design-reference **Settings (user details)** pattern.
+
+Reached from **sidebar user row → Settings**, **topbar avatar**, or **mobile tab Settings** → route **`/workflows/settings`**.
 
 ```
-App sidebar
-  ├── Workflows
-  ├── Search
-  └── Settings            <- opens the Settings module
-        └── User Management   <- MVP (this doc)
-        └── (future: Notifications, Connected accounts, Danger zone…)
+App shell
+  └── Settings (one page — profile + account + notifications + sign-in)
+        └── (future: extra sections only if we add real sub-routes, e.g. billing)
 ```
 
-## 2. Sub-modules
-
-| Sub-module | Scope | Status |
-|---|---|---|
-| **User Management** | The logged-in user's **own** profile/account. View details, edit display name + bio, upload a profile picture. | 🟡 this doc |
-| Notifications | Email/in-app notification prefs | ⚪ future |
-| Connected accounts | Google connection info, disconnect | ⚪ future |
-| Danger zone | Delete account | ⚪ future |
-
-> **Scope note:** User Management is **self-service for the current user only** — *not* an admin
-> screen that lists/manages all users. MVP has no roles/teams (per PRD non-goals), so there is no
-> "manage other users" view. If that's ever needed, it becomes its own module with a role model.
+> **Naming:** Do **not** use “User Management” as a product name or folder — that implies an admin
+> user directory. This module is **Settings** / **my profile** only.
 
 ---
 
-## 3. User Management (My Profile)
+## 2. MVP scope (one screen)
+
+| Section on screen | Scope | Status |
+|---|---|---|
+| Profile card | Avatar (Google), display name, username, email, role, team, bio, save/reset | 🟢 built |
+| Account | Member since, workflows published, stars (placeholders where API missing) | 🟡 partial |
+| Notifications | Local toggles until email delivery exists | 🟡 local only |
+| Sign-in & security | Google connection + sign out | 🟢 built |
+
+Future **admin** “manage all users” is out of PRD scope and would be a different module entirely.
+
+---
+
+## 3. Settings page (user profile / account)
 
 ### 3.1 Purpose
 Let the signed-in user see their account details and personalize their public identity (display
@@ -45,7 +46,7 @@ name, short bio, profile picture). Email comes from Google and is **read-only**.
 
 | Screen | Route | What it shows |
 |---|---|---|
-| **Profile** | `/settings/user-management` | Profile header (avatar, display name, email, joined date) + an editable profile form + avatar upload control. |
+| **Settings** (user details) | `/workflows/settings` | Full settings screen per design reference: profile, account meta, notifications, sign-in (see implemented UI). |
 
 UI states to handle on this screen (per error-handling rules): **loading** (fetching `/me`),
 **ready**, **saving** (form submit / upload in progress), **success** (toast), **error** (inline +
@@ -164,24 +165,21 @@ this extends its payload and adds the three write endpoints.
 ### 3.8 Frontend structure (Angular)
 
 ```
-frontend/src/app/
-  features/settings/
-    settings.routes.ts                 # lazy SETTINGS_ROUTES
-    settings-layout.component.ts        # inner nav (User Management + future) + router-outlet
-    user-management/
-      profile.page.ts                  # the screen (page component)
-      components/
-        profile-form.component.ts       # display name + bio reactive form
-        avatar-uploader.component.ts     # PrimeNG FileUpload + preview + validation
-      user-profile.service.ts           # GET/PATCH /me, POST/DELETE /me/avatar
-  core/
-    services/current-user.store.ts      # signal-based current-user state (shared app-wide)
+frontend/src/app/features/workflows/settings/
+  settings.routes.ts              # SETTINGS_ROUTES → SettingsPageComponent
+  pages/
+    settings-page.component.*     # user profile + account (design reference)
+  components/
+    settings-toggle.component.ts
+  state/
+    settings-notification-prefs.service.ts
+core/auth/
+  auth-api.service.ts             # GET/PATCH /me
+  auth.service.ts                 # current user signal
 ```
 
-- Route: `/settings/user-management`, lazy-loaded; guarded by the auth guard (must be logged in).
-- Current-user state in a **signal store** so the avatar/name update reflects in the sidebar/header
-  immediately after a save (signals-and-rxjs rules).
-- Avatar uploader does client-side validation, shows preview, posts multipart, updates the store.
+- Route: **`/workflows/settings`** (legacy `/workflows/settings/user-management` redirects to `''`).
+- No `user-management/` folder — that name is reserved for a future **admin** feature, not this screen.
 
 ### 3.9 Rules to follow (load these from `../../../ai-rules/`)
 

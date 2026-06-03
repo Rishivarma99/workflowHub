@@ -1,0 +1,235 @@
+<div class="content-inner set-page">
+  <div class="page-head">
+    <h1>Settings</h1>
+    <p class="sub">Manage your profile and account preferences.</p>
+  </div>
+
+  @if (loading()) {
+    <p class="set-status">Loading your profile…</p>
+  } @else if (loadError() && !user()) {
+    <div class="set-load-fail card card-pad">
+      <p class="set-banner set-banner--error" role="alert">{{ loadError() }}</p>
+      <p class="set-load-hint">
+        If you just updated the app, the database may need a migration. Ensure the API is running on
+        port 5031 and try again.
+      </p>
+      <button type="button" class="btn btn-primary" (click)="retryLoad()">Try again</button>
+    </div>
+  } @else if (user(); as u) {
+    @if (saveError()) {
+      <p class="set-banner set-banner--error" role="alert">{{ saveError() }}</p>
+    }
+    @if (loadError()) {
+      <p class="set-banner set-banner--warn" role="status">
+        Could not refresh profile. Showing cached details. {{ loadError() }}
+      </p>
+    }
+
+    <div class="card card-pad set-card">
+      <div class="set-card-head">
+        <wh-avatar
+          [name]="profileDisplayName(u)"
+          [size]="64"
+          [color]="'#5353ef'"
+          [imageUrl]="u.avatarUrl"
+        />
+        <div class="set-card-id">
+          <div class="set-card-name">{{ profileDisplayName(u) }}</div>
+          <div class="set-chips">
+            <span class="chip chip-brand">
+              <wh-icon name="briefcase" [size]="12" />
+              {{ chipRole(u) }}
+            </span>
+            <span class="chip">
+              <wh-icon name="users" [size]="12" />
+              {{ chipTeam(u) }}
+            </span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn btn-outline btn-sm set-photo-btn"
+          disabled
+          title="Profile photo comes from your Google account"
+        >
+          <wh-icon name="camera" [size]="15" />
+          Change photo
+        </button>
+      </div>
+
+      <div class="set-divider"></div>
+
+      <form class="set-grid" [formGroup]="profileForm" (ngSubmit)="onSave()">
+        <div class="field">
+          <label for="displayName">Full name</label>
+          <input
+            id="displayName"
+            class="input"
+            type="text"
+            formControlName="displayName"
+            autocomplete="name"
+          />
+          @if (profileForm.controls.displayName.touched && profileForm.controls.displayName.invalid) {
+            <span class="field-error">Use 2–50 characters or leave empty.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="username">Username</label>
+          <div class="set-username-wrap">
+            <span class="set-username-at" aria-hidden="true">@</span>
+            <input
+              id="username"
+              class="set-username-input"
+              type="text"
+              formControlName="username"
+              autocomplete="username"
+              spellcheck="false"
+              (input)="onUsernameInput($event)"
+            />
+          </div>
+          <span class="hint">workflowhub.dev/@{{ usernameHint() }}</span>
+          @if (profileForm.controls.username.touched && profileForm.controls.username.invalid) {
+            <span class="field-error">Use 3–30 lowercase letters, numbers, or underscores.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" class="input" type="email" formControlName="email" />
+          <span class="hint set-hint-row">
+            <wh-icon name="shield-check" [size]="12" />
+            Verified via Google
+          </span>
+        </div>
+
+        <div class="field">
+          <label for="role">Role</label>
+          <input id="role" class="input" type="text" formControlName="role" autocomplete="organization-title" />
+          @if (profileForm.controls.role.touched && profileForm.controls.role.invalid) {
+            <span class="field-error">Role must be at most 80 characters.</span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="team">Team</label>
+          <input id="team" class="input" type="text" formControlName="team" />
+          @if (profileForm.controls.team.touched && profileForm.controls.team.invalid) {
+            <span class="field-error">Team must be at most 80 characters.</span>
+          }
+        </div>
+
+        <div class="field set-span">
+          <label for="bio">Bio</label>
+          <textarea
+            id="bio"
+            rows="3"
+            formControlName="bio"
+            placeholder="A short description shown on your public profile."
+            [attr.maxlength]="160"
+          ></textarea>
+          <span class="hint">{{ profileForm.controls.bio.value?.length ?? 0 }}/160</span>
+          @if (profileForm.controls.bio.touched && profileForm.controls.bio.invalid) {
+            <span class="field-error">Bio must be at most 160 characters.</span>
+          }
+        </div>
+      </form>
+
+      <div class="set-actions">
+        @if (saved()) {
+          <span class="set-saved">
+            <wh-icon name="check-circle" [size]="16" />
+            Saved
+          </span>
+        }
+        <button
+          type="button"
+          class="btn btn-ghost"
+          [disabled]="profileForm.pristine || saving()"
+          (click)="onReset()"
+        >
+          Reset
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="profileForm.invalid || profileForm.pristine || saving()"
+          (click)="onSave()"
+        >
+          @if (saving()) {
+            Saving…
+          } @else {
+            <wh-icon name="check" [size]="16" />
+            Save changes
+          }
+        </button>
+      </div>
+    </div>
+
+    <div class="set-two">
+      <div class="card card-pad">
+        <div class="eyebrow set-eyebrow">Account</div>
+        <div class="set-meta-row">
+          <span class="set-meta-label">
+            <wh-icon name="calendar" [size]="15" />
+            Member since
+          </span>
+          <b>{{ joinedLabel(u) }}</b>
+        </div>
+        <div class="set-meta-row">
+          <span class="set-meta-label">
+            <wh-icon name="folder-git-2" [size]="15" />
+            Workflows published
+          </span>
+          <b>0</b>
+        </div>
+        <div class="set-meta-row set-meta-row--last">
+          <span class="set-meta-label">
+            <wh-icon name="star" [size]="15" />
+            Stars earned
+          </span>
+          <b>—</b>
+        </div>
+      </div>
+
+      <div class="card card-pad">
+        <div class="eyebrow set-eyebrow">Notifications</div>
+        <div class="set-notif-row">
+          <span>New stars on my workflows</span>
+          <wh-settings-toggle [on]="prefs().stars" (toggled)="togglePref('stars')" />
+        </div>
+        <div class="set-notif-row">
+          <span>Comments and mentions</span>
+          <wh-settings-toggle [on]="prefs().comments" (toggled)="togglePref('comments')" />
+        </div>
+        <div class="set-notif-row">
+          <span>Weekly registry digest</span>
+          <wh-settings-toggle [on]="prefs().weekly" (toggled)="togglePref('weekly')" />
+        </div>
+        <div class="set-notif-row set-notif-row--last">
+          <span>Auto-draft suggestions</span>
+          <wh-settings-toggle [on]="prefs().autodraft" (toggled)="togglePref('autodraft')" />
+        </div>
+      </div>
+    </div>
+
+    <div class="card card-pad set-security">
+      <div class="eyebrow set-eyebrow">Sign-in &amp; security</div>
+      <div class="set-security-row">
+        <div class="set-security-id">
+          <span class="set-security-badge">
+            <wh-icon name="shield-check" [size]="20" />
+          </span>
+          <div>
+            <div class="set-security-title">Google sign-in</div>
+            <div class="set-security-sub">Connected as {{ u.email }}</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" (click)="onSignOut()">
+          <wh-icon name="log-out" [size]="15" />
+          Sign out
+        </button>
+      </div>
+    </div>
+  }
+</div>

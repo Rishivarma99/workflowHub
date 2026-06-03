@@ -1,9 +1,18 @@
 import {
   ApplicationConfig,
+  inject,
+  provideAppInitializer,
   provideBrowserGlobalErrorListeners,
   provideZoneChangeDetection
 } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
+import { MessageService } from 'primeng/api';
+import { authInterceptor } from './core/auth/auth.interceptor';
+import { refreshInterceptor } from './core/auth/refresh.interceptor';
+import { AuthService } from './core/auth/auth.service';
+import { TokenStorage } from './core/auth/token-storage';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
@@ -15,6 +24,18 @@ export const appConfig: ApplicationConfig = {
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
+    provideHttpClient(withInterceptors([authInterceptor, refreshInterceptor])),
+    MessageService,
+    provideAppInitializer(() => {
+      const auth = inject(AuthService);
+      const tokens = inject(TokenStorage);
+
+      if (!tokens.getAccess()) {
+        return Promise.resolve();
+      }
+
+      return firstValueFrom(auth.loadCurrentUser()).catch(() => undefined);
+    }),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {

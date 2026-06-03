@@ -8,6 +8,7 @@ export interface ShellUser {
   name: string;
   email: string;
   avatarColor: string;
+  avatarUrl?: string | null;
 }
 
 @Component({

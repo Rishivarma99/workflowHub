@@ -1,24 +1,24 @@
 using Microsoft.EntityFrameworkCore;
+using WorkflowHub.Data.Entities;
 
 namespace WorkflowHub.Data.Persistence;
 
-/// <summary>
-/// EF Core database context for Workflow Hub.
-/// Stub only: no entities mapped yet. Entity configurations are applied
-/// from <c>Persistence/Configurations</c> as features are added.
-/// </summary>
-public class AppDbContext : DbContext
+public sealed class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
         : base(options)
     {
     }
 
+    public DbSet<User> Users => Set<User>();
+
+    public DbSet<UserIdentity> UserIdentities => Set<UserIdentity>();
+
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // Entity configurations will be applied here as features land, e.g.:
-        // modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
     }
 }

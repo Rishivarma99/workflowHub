@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { WhAvatarComponent } from '../../../../shared/ui/avatar/wh-avatar.component';
 import { WhIconComponent } from '../../../../shared/ui/icon/wh-icon.component';
@@ -10,7 +9,7 @@ import { WORKFLOWS_REGISTRY_NAV } from '../sidebar/workflows-nav.config';
   selector: 'wh-workflows-topbar',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, RouterLinkActive, FormsModule, WhIconComponent, WhAvatarComponent],
+  imports: [RouterLink, RouterLinkActive, WhIconComponent, WhAvatarComponent],
   templateUrl: './workflows-topbar.component.html',
   styleUrl: './workflows-topbar.component.scss'
 })
@@ -24,7 +23,8 @@ export class WorkflowsTopbarComponent {
 
   readonly nav = WORKFLOWS_REGISTRY_NAV;
 
-  onSearchInput(value: string): void {
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
     this.searchQueryChange.emit(value);
   }
 

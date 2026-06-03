@@ -25,7 +25,12 @@
   </nav>
 
   <button type="button" class="side-user side-user-btn" (click)="openSettings.emit()" title="Settings">
-    <wh-avatar [name]="user().name" [size]="34" [color]="user().avatarColor" />
+    <wh-avatar
+      [name]="user().name"
+      [size]="34"
+      [color]="user().avatarColor"
+      [imageUrl]="user().avatarUrl ?? null"
+    />
     <div class="side-user-text">
       <span class="side-user-name">{{ user().name }}</span>
       <span class="side-user-email">{{ user().email }}</span>

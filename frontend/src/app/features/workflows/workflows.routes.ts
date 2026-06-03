@@ -10,32 +10,31 @@ export const WORKFLOWS_ROUTES: Routes = [
       {
         path: 'discover',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPage),
+          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
         data: { title: 'Discover', subtitle: 'Browse published workflows in the registry.' }
       },
       {
         path: 'search',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPage),
+          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
         data: { title: 'Search', subtitle: 'Find workflows and components by capability.' }
       },
       {
         path: 'mine',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPage),
+          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
         data: { title: 'My workflows', subtitle: 'Workflows you have published.' }
       },
       {
         path: 'create',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPage),
+          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
         data: { title: 'New workflow', subtitle: 'Publish a workflow from a public GitHub repo.' }
       },
       {
         path: 'settings',
-        loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPage),
-        data: { title: 'Settings', subtitle: 'Account and profile — user management coming next.' }
+        loadChildren: () =>
+          import('./settings/settings.routes').then((m) => m.SETTINGS_ROUTES)
       }
     ]
   }

@@ -5,22 +5,33 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <span
-      class="inline-flex items-center justify-center rounded-full font-bold text-white"
-      [style.width.px]="size()"
-      [style.height.px]="size()"
-      [style.fontSize.px]="fontSize()"
-      [style.background]="color()"
-      [attr.aria-label]="name()"
-    >
-      {{ initials() }}
-    </span>
+    @if (imageUrl()) {
+      <img
+        class="inline-block rounded-full object-cover"
+        [src]="imageUrl()"
+        [alt]="name()"
+        [style.width.px]="size()"
+        [style.height.px]="size()"
+      />
+    } @else {
+      <span
+        class="inline-flex items-center justify-center rounded-full font-bold text-white"
+        [style.width.px]="size()"
+        [style.height.px]="size()"
+        [style.fontSize.px]="fontSize()"
+        [style.background]="color()"
+        [attr.aria-label]="name()"
+      >
+        {{ initials() }}
+      </span>
+    }
   `
 })
 export class WhAvatarComponent {
   readonly name = input.required<string>();
   readonly size = input(32);
   readonly color = input('#5353ef');
+  readonly imageUrl = input<string | null>(null);
 
   readonly fontSize = computed(() => Math.round(this.size() * 0.38));
 

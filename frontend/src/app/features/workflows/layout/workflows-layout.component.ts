@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
+import { AuthService } from '../../../core/auth/auth.service';
 import { ShellUser, WorkflowsSidebarComponent } from './sidebar/workflows-sidebar.component';
 import { WorkflowsTopbarComponent } from './topbar/workflows-topbar.component';
 import { WorkflowsTabbarComponent } from './footer/workflows-tabbar.component';
 
-/**
- * Authenticated Workflow Hub shell: sidebar (desktop), top bar, main outlet, tab bar (mobile).
- */
 @Component({
   selector: 'wh-workflows-layout',
   standalone: true,
@@ -21,13 +20,18 @@ import { WorkflowsTabbarComponent } from './footer/workflows-tabbar.component';
   styleUrl: './workflows-layout.component.scss'
 })
 export class WorkflowsLayoutComponent {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly router = inject(Router);
+  private readonly auth = inject(AuthService);
 
-  /** Placeholder until AuthService provides the signed-in user. */
-  readonly user = signal<ShellUser>({
-    name: 'Jamie Lo',
-    email: 'jamie@acme.co',
-    avatarColor: '#5353ef'
+  readonly user = computed<ShellUser>(() => {
+    const user = this.auth.currentUser();
+    return {
+      name: user?.displayName || user?.name || 'Workflow Hub User',
+      email: user?.email || '',
+      avatarColor: '#5353ef',
+      avatarUrl: user?.avatarUrl ?? null
+    };
   });
 
   readonly searchQuery = signal('');
@@ -46,7 +50,11 @@ export class WorkflowsLayoutComponent {
   }
 
   onSignOut(): void {
-    // TODO(auth): clear tokens + call POST /auth/logout
-    void this.router.navigate(['/auth/login']);
+    this.auth
+      .logout()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        error: () => this.auth.hardLogout()
+      });
   }
 }

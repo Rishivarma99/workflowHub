@@ -21,7 +21,7 @@ import { map } from 'rxjs';
   `,
   styleUrl: './placeholder.page.scss'
 })
-export class PlaceholderPage {
+export class PlaceholderPageComponent {
   private readonly route = inject(ActivatedRoute);
 
   readonly page = toSignal(

@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 /**
  * Top-level routes: auth (public) and workflows business area (shell + features).
- * Auth guard will wrap `workflows` once JWT flow is implemented.
  */
 export const routes: Routes = [
   { path: '', redirectTo: 'auth/login', pathMatch: 'full' },
@@ -12,6 +12,7 @@ export const routes: Routes = [
   },
   {
     path: 'workflows',
+    canMatch: [authGuard],
     loadChildren: () =>
       import('./features/workflows/workflows.routes').then((m) => m.WORKFLOWS_ROUTES)
   },

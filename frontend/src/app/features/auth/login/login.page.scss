@@ -121,6 +121,15 @@
   max-width: 30ch;
 }
 
+.auth-error {
+  margin: 0 0 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.5rem;
+  background: #fef2f2;
+  color: #b91c1c;
+  font-size: 0.875rem;
+}
+
 .auth-card {
   background: #fff;
   border: 1px solid var(--grey-100);
