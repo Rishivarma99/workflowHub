@@ -1,0 +1,60 @@
+<article class="mine-row card card-pad">
+  <div class="mine-row-inner row">
+    <button type="button" class="mine-main" (click)="open.emit(workflow().id)">
+      <div class="mine-title-row row wrap">
+        <span class="mine-title">{{ workflow().name }}</span>
+        <span class="chip public-chip">
+          <wh-icon name="globe" [size]="12" />
+          Public
+        </span>
+      </div>
+
+      <p class="mine-desc">{{ workflow().description }}</p>
+
+      <div class="mine-meta row wrap">
+        <span class="ide-badge">{{ ideLabel() }}</span>
+        <span class="meta-item">
+          <wh-icon name="git-branch" [size]="14" />
+          {{ workflow().componentCount }} files
+        </span>
+        <span class="meta-item">
+          <wh-icon name="download" [size]="14" />
+          {{ workflow().downloadCount }}
+        </span>
+        <span class="meta-item">
+          <wh-icon name="clock" [size]="14" />
+          {{ updatedLabel() }}
+        </span>
+      </div>
+    </button>
+
+    <div class="mine-actions">
+      <button
+        type="button"
+        class="menu-trigger"
+        [attr.aria-expanded]="menuOpen()"
+        aria-label="Workflow actions"
+        (click)="menuToggle.emit(workflow().id); $event.stopPropagation()"
+      >
+        <wh-icon name="more-horizontal" [size]="18" />
+      </button>
+
+      @if (menuOpen()) {
+        <div class="action-menu" role="menu">
+          <button type="button" class="menu-item" role="menuitem" (click)="edit.emit(workflow().id)">
+            <wh-icon name="pencil" [size]="16" />
+            Edit
+          </button>
+          <button type="button" class="menu-item" role="menuitem" (click)="open.emit(workflow().id)">
+            <wh-icon name="external-link" [size]="16" />
+            View
+          </button>
+          <button type="button" class="menu-item danger" role="menuitem" (click)="delete.emit(workflow().id)">
+            <wh-icon name="trash-2" [size]="16" />
+            Delete
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</article>

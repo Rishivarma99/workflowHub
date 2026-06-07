@@ -1,0 +1,21 @@
+<article
+  class="article-card card card-pad card-link"
+  [class.compact]="compact()"
+  (click)="open.emit(article().slug)"
+>
+  <div class="article-head row wrap">
+    <span class="type-chip" [class.guide]="article().contentType === 'guide'">
+      {{ typeLabel(article().contentType) }}
+    </span>
+    @if (article().isPinned) {
+      <span class="pin-badge row">
+        <wh-icon name="pin" [size]="13" />
+        Pinned
+      </span>
+    }
+    <span class="category-label">{{ article().categoryName }}</span>
+  </div>
+
+  <h3 class="article-title">{{ article().title }}</h3>
+  <p class="article-summary">{{ article().summary }}</p>
+</article>

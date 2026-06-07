@@ -10,31 +10,55 @@ export const WORKFLOWS_ROUTES: Routes = [
       {
         path: 'discover',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
-        data: { title: 'Discover', subtitle: 'Browse published workflows in the registry.' }
+          import('./discover/pages/discover-page/discover-page.component').then((m) => m.DiscoverPageComponent)
       },
       {
-        path: 'search',
+        path: 'agent-assets',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
-        data: { title: 'Search', subtitle: 'Find workflows and components by capability.' }
+          import('./agent-assets/pages/agent-assets-page/agent-assets-page.component').then(
+            (m) => m.AgentAssetsPageComponent
+          )
+      },
+      {
+        path: 'learn',
+        loadComponent: () =>
+          import('./learn/pages/learn-page/learn-page.component').then((m) => m.LearnPageComponent)
+      },
+      {
+        path: 'learn/:slug',
+        loadComponent: () =>
+          import('./learn/pages/article-detail-page/article-detail-page.component').then(
+            (m) => m.ArticleDetailPageComponent
+          )
+      },
+      {
+        path: 'browse',
+        loadComponent: () =>
+          import('./discover/pages/browse-all-page/browse-all-page.component').then((m) => m.BrowseAllPageComponent)
       },
       {
         path: 'mine',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
-        data: { title: 'My workflows', subtitle: 'Workflows you have published.' }
+          import('./my-workflows/pages/my-workflows-page/my-workflows-page.component').then(
+            (m) => m.MyWorkflowsPageComponent
+          )
       },
       {
         path: 'create',
         loadComponent: () =>
-          import('./shared/placeholder.page').then((m) => m.PlaceholderPageComponent),
-        data: { title: 'New workflow', subtitle: 'Publish a workflow from a public GitHub repo.' }
+          import('./publish/pages/publish-wizard-page/publish-wizard-page.component').then((m) => m.PublishWizardPageComponent)
       },
       {
         path: 'settings',
         loadChildren: () =>
           import('./settings/settings.routes').then((m) => m.SETTINGS_ROUTES)
+      },
+      {
+        path: ':workflowId',
+        loadComponent: () =>
+          import('./discover/pages/workflow-detail-page/workflow-detail-page.component').then(
+            (m) => m.WorkflowDetailPageComponent
+          )
       }
     ]
   }

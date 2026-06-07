@@ -17,7 +17,8 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.HasIndex(u => u.Email)
-            .IsUnique();
+            .IsUnique()
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(u => u.Name)
             .HasMaxLength(200)
@@ -31,7 +32,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasIndex(u => u.Username)
             .IsUnique()
-            .HasFilter("\"Username\" IS NOT NULL");
+            .HasFilter("\"Username\" IS NOT NULL AND \"IsDeleted\" = false");
 
         builder.Property(u => u.Role)
             .HasMaxLength(80);
@@ -49,11 +50,29 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
             .HasMaxLength(64)
             .IsRequired();
 
+        builder.Property(u => u.IsDeleted)
+            .IsRequired();
+
         builder.Property(u => u.CreatedAtUtc)
             .IsRequired();
 
-        builder.Property(u => u.UpdatedAtUtc)
-            .IsRequired();
+        builder.Property(u => u.CreatedByUserId);
+
+        builder.Property(u => u.UpdatedAtUtc);
+
+        builder.Property(u => u.UpdatedByUserId);
+
+        builder.HasQueryFilter(u => !u.IsDeleted);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(u => u.CreatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(u => u.UpdatedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasMany(u => u.RefreshTokens)
             .WithOne(rt => rt.User)

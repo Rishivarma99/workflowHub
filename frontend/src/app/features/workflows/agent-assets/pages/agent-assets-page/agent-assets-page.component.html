@@ -1,0 +1,139 @@
+<div class="content-inner">
+  <section class="card hero-card">
+    <div class="eyebrow brand-eyebrow">Agent Assets</div>
+    <h1 class="hero-title">Find reusable rules, commands, skills, hooks, and agents.</h1>
+    <p class="hero-helper">
+      Need a complete solution instead?
+      <a routerLink="/workflows/discover" class="muted-link">Browse workflows →</a>
+    </p>
+
+    <form class="search-field hero-search" (submit)="submitSearch($event)">
+      <wh-icon name="search" [size]="20" />
+      <input
+        type="search"
+        [value]="searchDraft()"
+        (input)="onDraftInput($event)"
+        placeholder="Search agent assets…"
+        aria-label="Search agent assets"
+      />
+      @if (searching()) {
+        <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Clear search">
+          <wh-icon name="x" [size]="16" />
+        </button>
+      }
+      <button type="submit" class="btn btn-primary btn-sm search-submit">Search</button>
+    </form>
+  </section>
+
+  <div class="row wrap filter-row">
+    @for (type of filterTypes; track type) {
+      <button
+        type="button"
+        class="chip chip-btn"
+        [class.on]="isTypeSelected(type)"
+        (click)="toggleType(type)"
+      >
+        {{ typeLabel(type) }}
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="empty">
+      <wh-icon name="loader" [size]="28" />
+      <p>Loading…</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty">
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (searching() || selectedTypes().length > 0) {
+    <p class="results-meta">
+      @if (searching()) {
+        {{ searchTotal() }} asset{{ searchTotal() === 1 ? '' : 's' }} for
+        <strong>"{{ query().trim() }}"</strong>
+      } @else {
+        {{ searchTotal() }} asset{{ searchTotal() === 1 ? '' : 's' }} matching filters
+      }
+    </p>
+
+    @if (searchResults().length === 0) {
+      <div class="empty">
+        <span class="empty-icon"><wh-icon name="search-x" [size]="26" /></span>
+        <strong>No assets match</strong>
+        <p>Try clearing type filters or searching workflows instead.</p>
+        <a routerLink="/workflows/discover" class="btn btn-outline btn-sm empty-action">Browse workflows</a>
+      </div>
+    } @else {
+      <div class="asset-list">
+        @for (asset of searchResults(); track asset.id) {
+          <wh-agent-asset-card
+            [asset]="asset"
+            [starBusy]="starBusyId() === asset.id"
+            (open)="openAsset($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pager row">
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasPrev()" (click)="prevPage()">
+            Previous
+          </button>
+          <span class="pager-meta">Page {{ page() }} of {{ totalPages() }}</span>
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasNext()" (click)="nextPage()">
+            Next
+          </button>
+        </div>
+      }
+    }
+  } @else {
+    <div class="sec-head">
+      <h2>Popular assets</h2>
+      <span class="sec-meta row">
+        <wh-icon name="star" [size]="15" />
+        by stars
+      </span>
+    </div>
+
+    @if (popular().length > 0) {
+      <div class="asset-list">
+        @for (asset of popular(); track asset.id) {
+          <wh-agent-asset-card
+            [asset]="asset"
+            [starBusy]="starBusyId() === asset.id"
+            (open)="openAsset($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No agent assets published yet.</p>
+      </div>
+    }
+
+    <div class="sec-head">
+      <h2>New assets</h2>
+      <span class="sec-meta">Recently published</span>
+    </div>
+
+    @if (recent().length > 0) {
+      <div class="asset-list">
+        @for (asset of recent(); track asset.id) {
+          <wh-agent-asset-card
+            [asset]="asset"
+            [starBusy]="starBusyId() === asset.id"
+            (open)="openAsset($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No new assets yet.</p>
+      </div>
+    }
+  }
+</div>

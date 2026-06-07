@@ -1,4 +1,4 @@
-using WorkflowHub.Api.Infrastructure.Middleware;
+using WorkflowHub.Api.Middleware;
 
 namespace WorkflowHub.Api.Extensions;
 

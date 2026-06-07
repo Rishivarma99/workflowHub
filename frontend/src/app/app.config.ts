@@ -30,11 +30,11 @@ export const appConfig: ApplicationConfig = {
       const auth = inject(AuthService);
       const tokens = inject(TokenStorage);
 
-      if (!tokens.getAccess()) {
+      if (!tokens.hasSession()) {
         return Promise.resolve();
       }
 
-      return firstValueFrom(auth.loadCurrentUser()).catch(() => undefined);
+      return firstValueFrom(auth.restoreSession()).catch(() => undefined);
     }),
     provideAnimationsAsync(),
     providePrimeNG({

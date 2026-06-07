@@ -1,0 +1,28 @@
+<article
+  class="asset-card card card-pad card-link"
+  (click)="open.emit({ workflowId: asset().workflowId, componentId: asset().id })"
+>
+  <div class="asset-head row wrap">
+    <span class="type-chip">{{ typeLabel(asset().assetType) }}</span>
+    <code class="asset-name">{{ asset().name }}</code>
+    <span class="in-label">·</span>
+    <span class="file-name">{{ asset().path }}</span>
+  </div>
+
+  <p class="asset-desc">{{ asset().description }}</p>
+
+  <div class="asset-foot row">
+    <wh-star-toggle
+      [starred]="asset().isStarred"
+      [count]="asset().starCount"
+      [disabled]="starBusy()"
+      (toggle)="starToggle.emit(asset().id)"
+    />
+  </div>
+
+  <div class="asset-parent row">
+    <wh-icon name="corner-down-right" [size]="15" />
+    <span>In workflow <b>{{ asset().workflowName }}</b></span>
+    <wh-icon name="arrow-right" [size]="15" class="arrow" />
+  </div>
+</article>

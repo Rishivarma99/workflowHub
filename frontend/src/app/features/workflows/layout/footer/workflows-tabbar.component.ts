@@ -9,7 +9,10 @@ import { WORKFLOWS_TAB_NAV } from '../sidebar/workflows-nav.config';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, RouterLinkActive, WhIconComponent],
   templateUrl: './workflows-tabbar.component.html',
-  styleUrl: './workflows-tabbar.component.scss'
+  styleUrl: './workflows-tabbar.component.scss',
+  host: {
+    class: 'block sm:hidden'
+  }
 })
 export class WorkflowsTabbarComponent {
   readonly createWorkflow = output<void>();

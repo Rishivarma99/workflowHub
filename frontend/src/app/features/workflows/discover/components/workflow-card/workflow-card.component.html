@@ -1,0 +1,58 @@
+<article class="wf-card card card-pad card-link" (click)="open.emit(workflow().id)">
+  <div class="wf-card-head row">
+    <h3 class="wf-card-title">{{ workflow().name }}</h3>
+    <span class="ide-badge">{{ builtForAgentsLabel() }}</span>
+  </div>
+
+  <p class="wf-card-desc">{{ workflow().description }}</p>
+
+  <div class="wf-card-types row wrap">
+    @for (entry of componentCountEntries(); track entry[0]) {
+      <span class="chip chip-brand">{{ entry[1] }} {{ typeLabel(entry[0]) }}</span>
+    }
+  </div>
+
+  @if (workflow().tags.length > 0) {
+    <div class="wf-card-tags row wrap">
+      @for (tag of workflow().tags.slice(0, 4); track tag) {
+        <span class="chip">#{{ tag }}</span>
+      }
+    </div>
+  }
+
+  @if (workflow().matchedComponent; as match) {
+    <div class="wf-card-match row">
+      <wh-icon name="corner-down-right" [size]="14" />
+      <span>
+        matched: {{ typeLabel(match.componentType) }}
+        <code>{{ match.capabilityName }}</code>
+        ▸ {{ match.path }}
+      </span>
+    </div>
+  }
+
+  <div class="wf-card-foot">
+    <div class="wf-card-divider"></div>
+    <div class="row wf-card-meta">
+      <div class="row author-row">
+        <wh-avatar
+          [name]="authorName()"
+          [size]="24"
+          color="#5353ef"
+          [imageUrl]="workflow().author.avatarUrl ?? null"
+        />
+        <span>{{ authorName() }}</span>
+      </div>
+      <div class="row stats-row">
+        <wh-star-toggle
+          [starred]="workflow().isStarred"
+          [count]="workflow().starCount"
+          [disabled]="starBusy()"
+          (toggle)="starToggle.emit(workflow().id)"
+        />
+        <span class="stat"><wh-icon name="download" [size]="14" /> {{ formattedDownloads() }}</span>
+        <span class="stat"><wh-icon name="git-branch" [size]="14" /> {{ workflow().componentTypes.length }}</span>
+      </div>
+    </div>
+  </div>
+</article>

@@ -1,4 +1,6 @@
-<header class="topbar">
+<header
+  class="topbar fixed inset-x-0 top-0 z-[var(--z-shell-chrome)] flex min-h-14 items-center gap-3 px-4 lg:left-[15.5rem] lg:min-h-16 lg:px-7"
+>
   <div class="tb-brand">
     <span class="tb-mark"><wh-icon name="terminal-square" [size]="15" /></span>
     Workflow Hub
@@ -9,17 +11,6 @@
       <a class="topbar-link" [routerLink]="item.path" routerLinkActive="on">{{ item.label }}</a>
     }
   </nav>
-
-  <form class="search tb-search" (submit)="onSearchSubmit($event)">
-    <wh-icon name="search" [size]="18" class="search-ico" />
-    <input
-      type="search"
-      [value]="searchQuery()"
-      (input)="onSearchInput($event)"
-      placeholder="Search workflows or capabilities…"
-      aria-label="Search workflows or capabilities"
-    />
-  </form>
 
   <div class="tb-spacer"></div>
 

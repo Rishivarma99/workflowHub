@@ -15,21 +15,8 @@ import { WORKFLOWS_REGISTRY_NAV } from '../sidebar/workflows-nav.config';
 })
 export class WorkflowsTopbarComponent {
   readonly user = input.required<ShellUser>();
-  readonly searchQuery = input('');
-  readonly searchQueryChange = output<string>();
-  readonly submitSearch = output<void>();
   readonly openSettings = output<void>();
   readonly signOut = output<void>();
 
   readonly nav = WORKFLOWS_REGISTRY_NAV;
-
-  onSearchInput(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchQueryChange.emit(value);
-  }
-
-  onSearchSubmit(event: Event): void {
-    event.preventDefault();
-    this.submitSearch.emit();
-  }
 }

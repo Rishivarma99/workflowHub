@@ -1,0 +1,128 @@
+<div class="content-inner">
+  <section class="card hero-card">
+    <div class="eyebrow brand-eyebrow">Discover workflows</div>
+    <h1 class="hero-title">Find complete workflows that solve your problem.</h1>
+    <p class="hero-helper">
+      Looking for rules, commands, skills, hooks, or agents?
+      <a routerLink="/workflows/agent-assets" class="muted-link">Browse Agent Assets →</a>
+    </p>
+
+    <div class="hero-toolbar">
+      <form class="search-field" (submit)="submitSearch($event)">
+        <wh-icon name="search" [size]="20" />
+        <input
+          type="search"
+          [value]="searchDraft()"
+          (input)="onDraftInput($event)"
+          placeholder="Search workflows…"
+          aria-label="Search workflows"
+        />
+        @if (searching()) {
+          <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Clear search">
+            <wh-icon name="x" [size]="16" />
+          </button>
+        }
+        <button type="submit" class="btn btn-primary btn-sm search-submit">Search</button>
+      </form>
+
+      <a routerLink="/workflows/browse" class="btn btn-outline see-all-btn">See all workflows</a>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="empty">
+      <wh-icon name="loader" [size]="28" />
+      <p>Loading…</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty">
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (searching()) {
+    <p class="results-meta">
+      {{ searchTotal() }} workflow{{ searchTotal() === 1 ? '' : 's' }} for
+      <strong>"{{ query().trim() }}"</strong>
+    </p>
+
+    @if (searchResults().length === 0) {
+      <div class="empty">
+        <span class="empty-icon"><wh-icon name="search-x" [size]="26" /></span>
+        <strong>No workflows match</strong>
+        <p>Try a broader term, or search individual assets instead.</p>
+        <a routerLink="/workflows/agent-assets" class="btn btn-outline btn-sm empty-action">
+          Browse Agent Assets
+        </a>
+      </div>
+    } @else {
+      <div class="wf-grid">
+        @for (workflow of searchResults(); track workflow.id) {
+          <wh-workflow-card
+            [workflow]="workflow"
+            [starBusy]="starBusyId() === workflow.id"
+            (open)="openWorkflow($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pager row">
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasPrev()" (click)="prevPage()">
+            Previous
+          </button>
+          <span class="pager-meta">Page {{ page() }} of {{ totalPages() }}</span>
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasNext()" (click)="nextPage()">
+            Next
+          </button>
+        </div>
+      }
+    }
+  } @else {
+    <div class="sec-head">
+      <h2>Trending workflows</h2>
+      <span class="sec-meta row">
+        <wh-icon name="trending-up" [size]="15" />
+        by downloads
+      </span>
+    </div>
+
+    @if (trending().length > 0) {
+      <div class="wf-grid">
+        @for (workflow of trending(); track workflow.id) {
+          <wh-workflow-card
+            [workflow]="workflow"
+            [starBusy]="starBusyId() === workflow.id"
+            (open)="openWorkflow($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No workflows published yet.</p>
+      </div>
+    }
+
+    <div class="sec-head">
+      <h2>New workflows</h2>
+      <span class="sec-meta">Recently published</span>
+    </div>
+
+    @if (recent().length > 0) {
+      <div class="wf-grid">
+        @for (workflow of recent(); track workflow.id) {
+          <wh-workflow-card
+            [workflow]="workflow"
+            [starBusy]="starBusyId() === workflow.id"
+            (open)="openWorkflow($event)"
+            (starToggle)="toggleStar($event)"
+          />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No new workflows yet.</p>
+      </div>
+    }
+  }
+</div>

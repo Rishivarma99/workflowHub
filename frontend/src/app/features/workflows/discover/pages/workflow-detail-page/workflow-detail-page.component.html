@@ -1,0 +1,182 @@
+<div class="content-inner">
+  <button type="button" class="btn btn-ghost btn-sm back-btn" (click)="goBack()">
+    <wh-icon name="arrow-left" [size]="16" />
+    Back
+  </button>
+
+  @if (loading()) {
+    <div class="empty">
+      <wh-icon name="loader" [size]="28" />
+      <p>Loading workflow…</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty">
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (workflow(); as wf) {
+    <div class="detail-grid">
+      <div class="detail-main">
+        <section class="card card-pad">
+          <div class="row wrap tag-row">
+            @for (agent of wf.builtForAgents; track agent) {
+              <span class="ide-badge">{{ ideLabel(agent) }}</span>
+            }
+            <span class="code-badge">{{ wf.workflowCode }}</span>
+            @for (tag of wf.tags; track tag) {
+              <span class="chip">#{{ tag }}</span>
+            }
+          </div>
+
+          <h1 class="detail-title">{{ wf.name }}</h1>
+          <p class="detail-desc">{{ wf.description }}</p>
+
+          <a class="repo-ref" [href]="wf.repositoryUrl" target="_blank" rel="noreferrer">
+            <wh-icon name="github" [size]="15" />
+            <span class="repo-url">{{ repoDisplay(wf.repositoryUrl) }}</span>
+            <span class="repo-sha">
+              <wh-icon name="git-commit" [size]="13" />
+              {{ wf.commitSha.slice(0, 7) }}
+            </span>
+            <wh-icon name="external-link" [size]="14" class="ext" />
+          </a>
+
+          <div class="row wrap author-row">
+            <div class="row author-block">
+              <wh-avatar
+                [name]="authorName(wf)"
+                [size]="36"
+                color="#5353ef"
+                [imageUrl]="wf.author.avatarUrl ?? null"
+              />
+              <div>
+                <div class="author-name">{{ authorName(wf) }}</div>
+                <div class="author-updated">Updated {{ wf.updatedAtUtc | date: 'mediumDate' }}</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <div class="sec-head">
+          <h2>Components <span class="count-muted">· {{ wf.components.length }}</span></h2>
+        </div>
+
+        @for (component of wf.components; track component.id) {
+          <article class="file-row card" [class.open]="isExpanded(component)">
+            <button type="button" class="file-row-head" (click)="toggleComponent(component)">
+              <div class="file-main">
+                <div class="row wrap file-title-row">
+                  <span class="file-name">{{ component.path }}</span>
+                  <span class="type-chip">{{ typeLabel(component.componentType) }}</span>
+                </div>
+                <p class="file-sum">{{ component.summary }}</p>
+              </div>
+              <div class="file-row-actions">
+                <wh-star-toggle
+                  [starred]="component.isStarred"
+                  [count]="component.starCount"
+                  [disabled]="componentStarBusyId() === component.id"
+                  (toggle)="toggleComponentStar(component.id)"
+                />
+                <wh-icon [name]="isExpanded(component) ? 'chevron-up' : 'chevron-down'" [size]="18" />
+              </div>
+            </button>
+
+            @if (isExpanded(component)) {
+              <div class="file-body">
+                <div class="eyebrow">{{ typeLabel(component.componentType) }} · {{ component.capabilities.length }}</div>
+                @for (cap of component.capabilities; track cap.name) {
+                  <div class="cmd row">
+                    <code>{{ cap.name }}</code>
+                    <span class="cmd-desc">{{ cap.description }}</span>
+                  </div>
+                }
+                @if (component.keywords.length > 0) {
+                  <div class="row wrap keyword-row">
+                    @for (keyword of component.keywords; track keyword) {
+                      <span class="chip">{{ keyword }}</span>
+                    }
+                  </div>
+                }
+                <a class="github-link" [href]="component.gitHubUrl" target="_blank" rel="noreferrer">
+                  View on GitHub
+                  <wh-icon name="external-link" [size]="14" />
+                </a>
+              </div>
+            }
+          </article>
+        }
+      </div>
+
+      <aside class="detail-side">
+        <section class="card card-pad">
+          <div class="eyebrow side-eyebrow">At a glance</div>
+          <div class="stat-row row star-row">
+            <span class="stat-label row"><wh-icon name="star" [size]="15" /> Stars</span>
+            <wh-star-toggle
+              [starred]="wf.isStarred"
+              [count]="wf.starCount"
+              [disabled]="starBusy()"
+              (toggle)="toggleStar()"
+            />
+          </div>
+          <div class="stat-row row">
+            <span class="stat-label row"><wh-icon name="download" [size]="15" /> Installs</span>
+            <b>{{ formattedCount(wf.downloadCount) }}</b>
+          </div>
+          <div class="stat-row row">
+            <span class="stat-label row"><wh-icon name="code" [size]="15" /> Built for</span>
+            <b>{{ builtForLabel() }}</b>
+          </div>
+          <div class="stat-row row">
+            <span class="stat-label row"><wh-icon name="git-branch" [size]="15" /> Components</span>
+            <b>{{ wf.components.length }}</b>
+          </div>
+        </section>
+
+        <section class="card card-pad" id="install-panel">
+          <div class="eyebrow side-eyebrow">Before you install — you'll need</div>
+          @if (wf.dependencies.length === 0) {
+            <div class="dep-row standalone row">
+              <wh-icon name="check-circle" [size]="16" />
+              <span>Runs standalone — no MCP servers or plugins required.</span>
+            </div>
+          } @else {
+            @for (dep of wf.dependencies; track dep.name) {
+              <div class="dep-row row">
+                <span class="dep-kind">{{ dep.kind.toUpperCase() }}</span>
+                <div class="dep-body">
+                  <div class="row wrap">
+                    <b class="dep-name">{{ dep.name }}</b>
+                    <span class="req-pill">{{ dep.requirement }}</span>
+                  </div>
+                  @if (dep.note) {
+                    <p class="dep-note">{{ dep.note }}</p>
+                  }
+                </div>
+              </div>
+            }
+          }
+
+          <div class="eyebrow clone-eyebrow">Install with your agent</div>
+          <p class="install-hint">
+            Generate a single installation prompt, paste it into Cursor, Claude, or Copilot, and let your agent handle the setup.
+          </p>
+          <button type="button" class="btn btn-primary btn-sm btn-block" (click)="onInstallClick()">
+            <wh-icon name="sparkles" [size]="15" />
+            Install workflow
+          </button>
+        </section>
+      </aside>
+    </div>
+
+    @if (installModalOpen()) {
+      <wh-install-workflow-modal
+        [workflow]="wf"
+        [generating]="installGenerating()"
+        [generatedPrompt]="installPrompt()"
+        (closed)="closeInstallModal()"
+        (confirm)="onInstallConfirm($event)"
+      />
+    }
+  }
+</div>

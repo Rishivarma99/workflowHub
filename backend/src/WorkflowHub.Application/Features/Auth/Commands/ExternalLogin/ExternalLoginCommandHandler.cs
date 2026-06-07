@@ -1,8 +1,8 @@
 using WorkflowHub.Application.Auth;
 using WorkflowHub.Application.Auth.Models;
 using WorkflowHub.Application.Auth.Services;
-using WorkflowHub.Application.Contracts.Persistence;
-using WorkflowHub.Application.Contracts.Repositories;
+using WorkflowHub.Data.Abstractions.Persistence;
+using WorkflowHub.Data.Abstractions.Repositories;
 using WorkflowHub.Application.CQRS.Abstractions;
 using WorkflowHub.Common.Errors;
 using WorkflowHub.Common.Exceptions;
@@ -60,7 +60,6 @@ public sealed class ExternalLoginCommandHandler(
             user.Email = claims.Email;
             user.Name = claims.Name;
             user.AvatarUrl = claims.Picture;
-            user.UpdatedAtUtc = now;
 
             identity.ProviderEmail = claims.Email;
             identity.ProviderAvatarUrl = claims.Picture;
@@ -77,10 +76,9 @@ public sealed class ExternalLoginCommandHandler(
                     Id = Guid.NewGuid(),
                     Email = claims.Email,
                     Name = claims.Name,
-                    AvatarUrl = claims.Picture,
-                    CreatedAtUtc = now,
-                    UpdatedAtUtc = now
+                    AvatarUrl = claims.Picture
                 };
+                user.CreatedByUserId = user.Id;
                 userRepository.Add(user);
             }
             else
@@ -89,7 +87,6 @@ public sealed class ExternalLoginCommandHandler(
                 user.Email = claims.Email;
                 user.Name = claims.Name;
                 user.AvatarUrl = claims.Picture;
-                user.UpdatedAtUtc = now;
             }
 
             userIdentityRepository.Add(new UserIdentity

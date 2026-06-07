@@ -1,7 +1,7 @@
 using WorkflowHub.Application.Auth;
 using WorkflowHub.Application.Auth.Models;
-using WorkflowHub.Application.Contracts.Persistence;
-using WorkflowHub.Application.Contracts.Repositories;
+using WorkflowHub.Data.Abstractions.Persistence;
+using WorkflowHub.Data.Abstractions.Repositories;
 using WorkflowHub.Application.CQRS.Abstractions;
 using WorkflowHub.Common.Errors;
 using WorkflowHub.Common.Exceptions;
@@ -40,7 +40,6 @@ public sealed class UpdateProfileCommandHandler(
         user.Role = command.Role;
         user.Team = command.Team;
         user.Bio = command.Bio;
-        user.UpdatedAtUtc = DateTime.UtcNow;
 
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return AuthUserMapper.ToDto(user);

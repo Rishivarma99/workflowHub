@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.Extensions.Options;
 using WorkflowHub.Application.Auth.Models;
 using WorkflowHub.Application.Auth.Options;
-using WorkflowHub.Application.Contracts.Repositories;
+using WorkflowHub.Data.Abstractions.Repositories;
 using WorkflowHub.Data.Entities;
 
 namespace WorkflowHub.Application.Auth.Services;

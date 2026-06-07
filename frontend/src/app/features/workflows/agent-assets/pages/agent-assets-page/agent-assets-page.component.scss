@@ -1,0 +1,57 @@
+@use '../../../discover/styles/discover-shared';
+
+:host {
+  display: block;
+}
+
+.brand-eyebrow {
+  color: var(--brand);
+}
+
+.hero-search {
+  margin-top: 1.125rem;
+}
+
+.hero-helper {
+  margin: 0.625rem 0 0;
+  color: var(--fg-2);
+  font-size: 0.8125rem;
+}
+
+.filter-row {
+  gap: 0.4375rem;
+  margin-bottom: 0.25rem;
+}
+
+.asset-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.search-submit {
+  flex: 0 0 auto;
+  margin: 0.375rem 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.empty-action {
+  margin-top: 1rem;
+}
+
+.compact {
+  padding: 1.5rem 1rem;
+}
+
+.pager {
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.pager-meta {
+  color: var(--fg-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}

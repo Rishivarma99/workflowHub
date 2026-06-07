@@ -1,0 +1,435 @@
+<div class="content-inner pub-page">
+  <button type="button" class="btn btn-ghost btn-sm pub-cancel" (click)="store.cancel()">
+    <wh-icon name="x" [size]="16" />
+    Cancel
+  </button>
+
+  <nav class="stepper" aria-label="Publish progress">
+    @for (label of steps; track label; let i = $index) {
+      <div
+        class="st"
+        [class.on]="store.step() === i"
+        [class.done]="store.step() > i"
+      >
+        <span class="num">
+          @if (store.step() > i) {
+            <wh-icon name="check" [size]="14" />
+          } @else {
+            {{ i + 1 }}
+          }
+        </span>
+        <span>{{ label }}</span>
+      </div>
+      @if (i < steps.length - 1) {
+        <span class="bar" aria-hidden="true"></span>
+      }
+    }
+  </nav>
+
+  @switch (store.step()) {
+    @case (0) {
+      <div class="card card-pad pub-card">
+        <div class="field">
+          <label for="repoUrl">Public GitHub repository</label>
+          <div class="pub-search-wrap">
+            <wh-icon name="github" [size]="16" />
+            <input
+              id="repoUrl"
+              class="pub-search-input"
+              type="url"
+              [ngModel]="store.repositoryUrl()"
+              (ngModelChange)="store.onRepoUrlChange($event)"
+              placeholder="https://github.com/you/your-workflow"
+              autocomplete="url"
+            />
+            @if (store.repoUrlValid()) {
+              <wh-icon name="check-circle" [size]="16" class="pub-ok-icon" />
+            }
+          </div>
+          <span class="hint pub-hint">
+            <wh-icon name="git-commit" [size]="12" />
+            We pin the current commit SHA at publish — every install clones that exact version.
+          </span>
+
+          @if (store.repoValidating()) {
+            <span class="hint pub-hint pub-hint--checking">
+              <wh-icon name="loader" [size]="12" />
+              Checking repository…
+            </span>
+          } @else if (store.repoValidation(); as v) {
+            <ul class="pub-checklist">
+              <li [class.ok]="v.exists">
+                <wh-icon [name]="v.exists ? 'check-circle' : 'circle'" [size]="14" />
+                Repository exists
+              </li>
+              <li [class.ok]="v.isPublic">
+                <wh-icon [name]="v.isPublic ? 'check-circle' : 'circle'" [size]="14" />
+                Repository is public
+              </li>
+              <li [class.ok]="v.accessible">
+                <wh-icon [name]="v.accessible ? 'check-circle' : 'circle'" [size]="14" />
+                Repository is accessible
+              </li>
+            </ul>
+          }
+        </div>
+
+        <div class="field">
+          <label>Built for agents</label>
+          <div class="pub-chips">
+            @for (ide of sourceIdes; track ide.id) {
+              <button
+                type="button"
+                class="chip chip-btn"
+                [class.on]="store.isBuiltForAgentSelected(ide.id)"
+                (click)="store.toggleBuiltForAgent(ide.id)"
+              >
+                {{ ide.label }}
+              </button>
+            }
+          </div>
+          <span class="hint">
+            Select every agent this workflow was built for. Installers can convert to a different target at install time.
+          </span>
+        </div>
+      </div>
+    }
+
+    @case (1) {
+      <div class="pub-callout card">
+        <wh-icon name="sparkles" [size]="18" />
+        <p>
+          Copy the analysis prompt, run it in your AI agent against the repository, then paste the
+          generated JSON below. This powers component search in Discover.
+        </p>
+      </div>
+
+      <div class="card card-pad pub-card">
+        <div class="pub-prompt-head">
+          <span class="eyebrow">Analysis prompt</span>
+          <button type="button" class="btn btn-outline btn-sm" (click)="store.copyAnalysisPrompt()">
+            <wh-icon name="copy" [size]="15" />
+            Copy prompt
+          </button>
+        </div>
+        <pre class="pub-prompt-preview" aria-hidden="true">{{ store.analysisPrompt() | slice: 0 : 280 }}…</pre>
+
+        <div class="field pub-field-gap">
+          <label for="analysisJson">Paste AI analysis JSON</label>
+          <textarea
+            id="analysisJson"
+            rows="14"
+            class="pub-json-input"
+            [ngModel]="store.analysisJsonRaw()"
+            (ngModelChange)="store.onAnalysisJsonChange($event)"
+            placeholder='{ "workflowName": "...", "components": [...] }'
+            spellcheck="false"
+          ></textarea>
+        </div>
+
+        @if (store.analysisErrors().length > 0) {
+          <div class="pub-errors" role="alert">
+            <div class="pub-errors-head">
+              <wh-icon name="alert-circle" [size]="16" />
+              Fix the following before continuing:
+            </div>
+            <ul>
+              @for (err of store.analysisErrors(); track err) {
+                <li>{{ err }}</li>
+              }
+            </ul>
+          </div>
+        } @else if (store.analysis(); as data) {
+          <div class="pub-success">
+            <wh-icon name="check-circle" [size]="16" />
+            Valid — {{ data.components.length }} component(s) detected.
+          </div>
+        }
+      </div>
+    }
+
+    @case (2) {
+      <div class="card card-pad pub-card pub-stack">
+        <div class="eyebrow">Workflow metadata</div>
+
+        <div class="field">
+          <div class="pub-label-row">
+            <label for="workflowName">Workflow name</label>
+            @if (store.aiSuggestedName()) {
+              <button type="button" class="btn btn-ghost btn-sm" (click)="store.useAiSuggestedName()">
+                Use AI suggested name
+              </button>
+            }
+          </div>
+          <input
+            id="workflowName"
+            class="input"
+            type="text"
+            [ngModel]="store.workflowName()"
+            (ngModelChange)="store.workflowName.set($event)"
+            placeholder="e.g. React Authentication Workflow"
+          />
+          @if (store.nameChecking()) {
+            <span class="hint">Checking availability…</span>
+          } @else if (store.nameAvailable() === false) {
+            <span class="field-error">Workflow name already exists.</span>
+            @if (store.nameSuggestion()) {
+              <button type="button" class="btn btn-ghost btn-sm pub-suggest-btn" (click)="store.useNameSuggestion()">
+                Use "{{ store.nameSuggestion() }}"
+              </button>
+            }
+          } @else if (store.nameAvailable() === true && store.workflowName().trim().length >= 3) {
+            <span class="hint pub-hint--ok">
+              <wh-icon name="check-circle" [size]="12" />
+              Name is available
+            </span>
+          }
+        </div>
+
+        <div class="field">
+          <label for="description">Description</label>
+          <textarea
+            id="description"
+            rows="3"
+            [ngModel]="store.description()"
+            (ngModelChange)="store.description.set($event)"
+            placeholder="What problem does this workflow solve?"
+          ></textarea>
+        </div>
+
+        <div class="field">
+          <label for="tagDraft">Tags</label>
+          <div class="pub-search-wrap">
+            <wh-icon name="hash" [size]="16" />
+            <input
+              id="tagDraft"
+              class="pub-search-input"
+              type="text"
+              [ngModel]="store.tagDraft()"
+              (ngModelChange)="store.tagDraft.set($event)"
+              (keydown)="onTagKeydown($event)"
+              placeholder="Type a tag and press Enter"
+            />
+          </div>
+          @if (store.tags().length > 0) {
+            <div class="pub-chips pub-chips--tags">
+              @for (tag of store.tags(); track tag) {
+                <span class="chip chip-brand">
+                  #{{ tag }}
+                  <button type="button" class="pub-tag-remove" (click)="store.removeTag(tag)" aria-label="Remove tag">
+                    <wh-icon name="x" [size]="12" />
+                  </button>
+                </span>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="pub-divider"></div>
+        <div class="eyebrow">Dependencies</div>
+
+        <div class="pub-callout card pub-callout--compact">
+          <wh-icon name="plug" [size]="18" />
+          <p>
+            Declare MCP servers or plugins this workflow needs. Shown to installers before they
+            install. Never include secrets or tokens.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="dep-standalone"
+          [class.on]="store.runsStandalone()"
+          (click)="store.setStandalone(true)"
+        >
+          <wh-icon [name]="store.runsStandalone() ? 'check-circle' : 'circle'" [size]="18" />
+          <div>
+            <div class="dep-standalone-title">Runs standalone</div>
+            <div class="dep-standalone-sub">No MCP servers or plugins required.</div>
+          </div>
+        </button>
+
+        @if (!store.runsStandalone()) {
+          <div class="pub-deps">
+            @for (dep of store.dependencies(); track $index; let i = $index) {
+              <div class="card card-pad pub-dep-card">
+                <div class="pub-dep-head">
+                  <div class="seg">
+                    <button type="button" [class.on]="dep.kind === 'mcp'" (click)="store.updateDependency(i, { kind: 'mcp' })">MCP</button>
+                    <button type="button" [class.on]="dep.kind === 'plugin'" (click)="store.updateDependency(i, { kind: 'plugin' })">Plugin</button>
+                  </div>
+                  <div class="seg">
+                    <button type="button" [class.on]="dep.requirement === 'required'" (click)="store.updateDependency(i, { requirement: 'required' })">Required</button>
+                    <button type="button" [class.on]="dep.requirement === 'optional'" (click)="store.updateDependency(i, { requirement: 'optional' })">Optional</button>
+                  </div>
+                  <button type="button" class="pub-trash" (click)="store.removeDependency(i)" aria-label="Remove dependency">
+                    <wh-icon name="trash-2" [size]="16" />
+                  </button>
+                </div>
+                <input
+                  class="input pub-mono"
+                  [ngModel]="dep.name"
+                  (ngModelChange)="store.updateDependency(i, { name: $event })"
+                  placeholder="name — e.g. github, postgres"
+                />
+                <input
+                  class="input"
+                  [ngModel]="dep.note"
+                  (ngModelChange)="store.updateDependency(i, { note: $event })"
+                  placeholder="Short note (optional) — no secrets"
+                />
+              </div>
+            }
+          </div>
+        }
+
+        <button type="button" class="btn btn-ghost btn-sm pub-add-dep" (click)="store.addDependency()">
+          <wh-icon name="plus" [size]="15" />
+          Add dependency
+        </button>
+
+        <div class="pub-divider"></div>
+
+        <div class="pub-two-col">
+          <div class="field">
+            <label>Setup complexity</label>
+            <div class="pub-chips">
+              @for (opt of complexityOptions; track opt.id) {
+                <button
+                  type="button"
+                  class="chip chip-btn"
+                  [class.on]="store.complexity() === opt.id"
+                  (click)="store.complexity.set(opt.id)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Target audience</label>
+            <div class="pub-chips">
+              @for (opt of audienceOptions; track opt.id) {
+                <button
+                  type="button"
+                  class="chip chip-btn"
+                  [class.on]="store.targetAudience() === opt.id"
+                  (click)="store.targetAudience.set(opt.id)"
+                >
+                  {{ opt.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <label class="pub-ownership">
+          <input
+            type="checkbox"
+            [ngModel]="store.ownershipConfirmed()"
+            (ngModelChange)="store.ownershipConfirmed.set($event)"
+          />
+          <span>I own this repository or have permission to publish this workflow.</span>
+        </label>
+      </div>
+    }
+
+    @case (3) {
+      <div class="card card-pad pub-card pub-review">
+        <div class="pub-review-row">
+          <span class="pub-review-label">Repository URL</span>
+          <span class="pub-review-value">{{ store.repositoryUrl() }}</span>
+        </div>
+        <div class="pub-review-row">
+          <span class="pub-review-label">Built for agents</span>
+          <span class="pub-review-value">{{ store.builtForAgentsLabel() }}</span>
+        </div>
+        <div class="pub-review-row">
+          <span class="pub-review-label">Workflow name</span>
+          <span class="pub-review-value">{{ store.workflowName() }}</span>
+        </div>
+        <div class="pub-review-row pub-review-row--block">
+          <span class="pub-review-label">Description</span>
+          <span class="pub-review-value">{{ store.description() }}</span>
+        </div>
+        <div class="pub-review-row pub-review-row--block">
+          <span class="pub-review-label">Tags</span>
+          <div class="pub-chips pub-chips--tags">
+            @for (tag of store.tags(); track tag) {
+              <span class="chip chip-brand">#{{ tag }}</span>
+            }
+          </div>
+        </div>
+        <div class="pub-review-row pub-review-row--block">
+          <span class="pub-review-label">Components</span>
+          <div class="pub-chips">
+            @for (entry of componentCountEntries(); track entry[0]) {
+              <span class="chip">{{ componentTypeLabel(entry[0]) }} {{ entry[1] }}</span>
+            }
+          </div>
+        </div>
+        <div class="pub-review-row pub-review-row--block">
+          <span class="pub-review-label">Dependencies</span>
+          <span class="pub-review-value">
+            @if (store.runsStandalone()) {
+              Runs standalone
+            } @else {
+              @for (dep of store.dependencies(); track $index; let last = $last) {
+                {{ dep.name }} ({{ dep.requirement }}){{ last ? '' : ', ' }}
+              }
+            }
+          </span>
+        </div>
+        <div class="pub-review-row">
+          <span class="pub-review-label">Complexity</span>
+          <span class="pub-review-value">{{ store.complexityLabel() }}</span>
+        </div>
+        <div class="pub-review-row">
+          <span class="pub-review-label">Target audience</span>
+          <span class="pub-review-value">{{ store.audienceLabel() }}</span>
+        </div>
+      </div>
+    }
+  }
+
+  <div class="pub-footer">
+    <button type="button" class="btn btn-ghost" (click)="store.step() === 0 ? store.cancel() : store.prevStep()">
+      {{ store.step() === 0 ? 'Cancel' : 'Back' }}
+    </button>
+
+    @if (store.step() < 3) {
+      @if (store.step() === 1) {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="!store.analysisJsonRaw().trim()"
+          (click)="validateAndContinueFromAnalysis()"
+        >
+          Continue
+          <wh-icon name="arrow-right" [size]="16" />
+        </button>
+      } @else {
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="store.step() === 0 ? !store.canAdvanceFromRepo() : !store.canAdvanceFromMetadata()"
+          (click)="store.nextStep()"
+        >
+          Continue
+          <wh-icon name="arrow-right" [size]="16" />
+        </button>
+      }
+    } @else {
+      <button
+        type="button"
+        class="btn btn-primary"
+        [disabled]="store.publishing()"
+        (click)="store.publish()"
+      >
+        <wh-icon name="rocket" [size]="16" />
+        {{ store.publishing() ? 'Publishing…' : 'Publish workflow' }}
+      </button>
+    }
+  </div>
+</div>

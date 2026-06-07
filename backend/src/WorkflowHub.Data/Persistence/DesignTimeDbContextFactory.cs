@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using WorkflowHub.Data.Abstractions.Identity;
 
 namespace WorkflowHub.Data.Persistence;
 
@@ -25,6 +26,6 @@ public sealed class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<App
             .UseNpgsql(connectionString)
             .Options;
 
-        return new AppDbContext(options);
+        return new AppDbContext(options, NullCurrentUserContext.Instance);
     }
 }

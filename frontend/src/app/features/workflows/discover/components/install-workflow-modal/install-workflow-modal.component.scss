@@ -1,0 +1,122 @@
+.install-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgb(15 23 42 / 45%);
+}
+
+.install-modal {
+  width: min(100%, 36rem);
+  max-height: min(90vh, 52rem);
+  overflow: auto;
+  padding: 1.25rem;
+}
+
+.install-modal-head {
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.install-modal-title {
+  margin: 0.25rem 0 0;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.install-code {
+  margin-top: 0.25rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--fg-2);
+}
+
+.install-section {
+  margin-top: 1rem;
+}
+
+.install-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-2);
+  margin-bottom: 0.5rem;
+}
+
+.install-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.install-assets {
+  gap: 0.375rem;
+}
+
+.install-chips {
+  gap: 0.375rem;
+}
+
+.install-levels {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.install-level {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem;
+  border: 1px solid var(--grey-100);
+  background: var(--grey-50);
+  cursor: pointer;
+
+  &.on {
+    border-color: var(--blue-300);
+    background: var(--blue-50);
+  }
+}
+
+.install-level-title {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.install-level-hint {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--fg-2);
+}
+
+.install-prompt-box {
+  max-height: 12rem;
+  overflow: auto;
+  padding: 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--grey-100);
+  background: var(--grey-50);
+
+  pre {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, monospace;
+    font-size: 0.6875rem;
+    line-height: 1.5;
+  }
+}
+
+.install-actions {
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--grey-100);
+}

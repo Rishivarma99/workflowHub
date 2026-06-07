@@ -1,0 +1,60 @@
+<div class="content-inner">
+  <button type="button" class="btn btn-ghost btn-sm back-btn" (click)="goBack()">
+    <wh-icon name="arrow-left" [size]="16" />
+    Back to Discover
+  </button>
+
+  <div class="page-head">
+    <h1>All workflows</h1>
+    <p class="sub">Browse every published workflow in the registry.</p>
+  </div>
+
+  <div class="row wrap filter-row">
+    @for (type of componentTypes; track type) {
+      <button
+        type="button"
+        class="chip chip-btn"
+        [class.on]="isTypeSelected(type)"
+        (click)="toggleType(type)"
+      >
+        {{ typeLabel(type) }}
+      </button>
+    }
+  </div>
+
+  <div class="sec-head compact">
+    <h2>Results</h2>
+    <span class="sec-meta">{{ total() }} workflows</span>
+  </div>
+
+  @if (loading()) {
+    <div class="empty">
+      <wh-icon name="loader" [size]="28" />
+      <p>Loading…</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty">
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (workflows().length === 0) {
+    <div class="empty">
+      <p>No workflows match the selected filters.</p>
+    </div>
+  } @else {
+    <div class="wf-grid">
+      @for (workflow of workflows(); track workflow.id) {
+        <wh-workflow-card [workflow]="workflow" (open)="openWorkflow($event)" />
+      }
+    </div>
+
+    <div class="pagination row">
+      <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasPrev()" (click)="prevPage()">
+        Previous
+      </button>
+      <span class="page-label">Page {{ page() }} of {{ totalPages() }}</span>
+      <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasNext()" (click)="nextPage()">
+        Next
+      </button>
+    </div>
+  }
+</div>

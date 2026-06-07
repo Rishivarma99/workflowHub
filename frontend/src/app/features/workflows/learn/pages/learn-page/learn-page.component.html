@@ -1,0 +1,157 @@
+<div class="content-inner">
+  <section class="card hero-card">
+    <div class="eyebrow brand-eyebrow">Learn</div>
+    <h1 class="hero-title">Understand workflows, agent assets, and how to publish well.</h1>
+    <p class="hero-helper">
+      Guides and articles only — workflow and asset discovery stay in
+      <a routerLink="/workflows/discover" class="muted-link">Discover</a>
+      and
+      <a routerLink="/workflows/agent-assets" class="muted-link">Agent Assets</a>.
+    </p>
+
+    <div class="hero-toolbar">
+      <form class="search-field" (submit)="submitSearch($event)">
+        <wh-icon name="search" [size]="20" />
+        <input
+          type="search"
+          [value]="searchDraft()"
+          (input)="onDraftInput($event)"
+          placeholder="Search Learn…"
+          aria-label="Search Learn"
+        />
+        @if (searching()) {
+          <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="Clear search">
+            <wh-icon name="x" [size]="16" />
+          </button>
+        }
+        <button type="submit" class="btn btn-primary btn-sm search-submit">Search</button>
+      </form>
+    </div>
+  </section>
+
+  @if (loading()) {
+    <div class="empty">
+      <wh-icon name="loader" [size]="28" />
+      <p>Loading…</p>
+    </div>
+  } @else if (error()) {
+    <div class="empty">
+      <p>{{ error() }}</p>
+    </div>
+  } @else if (searching() || filtering()) {
+    @if (categories().length > 0) {
+      <div class="category-row filter-mode">
+        @for (cat of categories(); track cat.id) {
+          <button
+            type="button"
+            class="category-chip"
+            [class.active]="isCategoryActive(cat.slug)"
+            (click)="selectCategory(cat.slug)"
+          >
+            {{ cat.name }}
+          </button>
+        }
+      </div>
+    }
+
+    <p class="results-meta">
+      {{ searchTotal() }} article{{ searchTotal() === 1 ? '' : 's' }}
+      @if (searching()) {
+        for <strong>"{{ query().trim() }}"</strong>
+      }
+      @if (filtering()) {
+        in <strong>{{ category() }}</strong>
+      }
+    </p>
+
+    @if (searchResults().length === 0) {
+      <div class="empty">
+        <span class="empty-icon"><wh-icon name="search-x" [size]="26" /></span>
+        <strong>No articles match</strong>
+        <p>Try a broader term or browse getting started guides below.</p>
+        <button type="button" class="btn btn-outline btn-sm empty-action" (click)="selectCategory(null); clearSearch()">
+          Clear filters
+        </button>
+      </div>
+    } @else {
+      <div class="article-grid">
+        @for (article of searchResults(); track article.id) {
+          <wh-article-card [article]="article" (open)="openArticle($event)" />
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <div class="pager row">
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasPrev()" (click)="prevPage()">
+            Previous
+          </button>
+          <span class="pager-meta">Page {{ page() }} of {{ totalPages() }}</span>
+          <button type="button" class="btn btn-outline btn-sm" [disabled]="!hasNext()" (click)="nextPage()">
+            Next
+          </button>
+        </div>
+      }
+    }
+  } @else {
+    <div class="sec-head">
+      <h2>
+        <span class="sec-head-icon row">
+          <wh-icon name="pin" [size]="16" />
+        </span>
+        Getting Started
+      </h2>
+      <span class="sec-meta">Pinned guides</span>
+    </div>
+
+    @if (pinnedGuides().length > 0) {
+      <div class="pinned-grid">
+        @for (article of pinnedGuides(); track article.id) {
+          <wh-article-card [article]="article" (open)="openArticle($event)" />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No pinned guides yet.</p>
+      </div>
+    }
+
+    <hr class="section-divider" />
+
+    <div class="sec-head">
+      <h2>Latest Articles</h2>
+      <span class="sec-meta">Recently published</span>
+    </div>
+
+    @if (latestArticles().length > 0) {
+      <div class="article-grid">
+        @for (article of latestArticles(); track article.id) {
+          <wh-article-card [article]="article" (open)="openArticle($event)" />
+        }
+      </div>
+    } @else {
+      <div class="empty compact">
+        <p>No articles published yet.</p>
+      </div>
+    }
+
+    <hr class="section-divider" />
+
+    <div class="sec-head">
+      <h2>Categories</h2>
+      <span class="sec-meta">Browse by topic</span>
+    </div>
+
+    <div class="category-row">
+      @for (cat of categories(); track cat.id) {
+        <button
+          type="button"
+          class="category-chip"
+          [class.active]="isCategoryActive(cat.slug)"
+          (click)="selectCategory(cat.slug)"
+        >
+          {{ cat.name }}
+        </button>
+      }
+    </div>
+  }
+</div>

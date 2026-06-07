@@ -13,9 +13,12 @@ we agree on **before** building each module, so frontend (Angular) and backend (
 | Module | Status | Doc |
 |---|---|---|
 | **Settings** (profile & account — user details) | 🟢 Built (MVP UI) | [`settings-module.md`](settings-module.md) |
-| **Discover** (browse / search / detail) | 🟡 Decisions landing | [`discover-module.md`](discover-module.md) |
+| **Discover** (workflow marketplace — browse / search / detail) | 🟡 In progress | [`discover-module.md`](discover-module.md) |
+| **Agent Assets** (AI agent asset marketplace) | 🟡 In progress | [`agent-assets-module.md`](agent-assets-module.md) |
+| **Learn** (knowledge center — guides & articles) | 🟢 Built (MVP) | [`learn-module.md`](learn-module.md) |
+| **My workflows** (author dashboard) | 🟢 Built (MVP) | [`my-workflows-module.md`](my-workflows-module.md) |
 | Auth (Google login + JWT) | ⚪ Not started | _tbd_ |
-| Publish a workflow | ⚪ Not started | _tbd_ |
+| **Publish** (wizard — repo + AI analysis → workflow) | 🟢 Built (MVP) | [`publish-module.md`](publish-module.md) |
 | Install / Convert | ⚪ Not started | _tbd_ |
 
 Legend: ⚪ not started · 🟡 spec drafted · 🟢 built

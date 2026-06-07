@@ -1,0 +1,83 @@
+@use '../../../discover/styles/discover-shared';
+
+:host {
+  display: block;
+}
+
+.page-toolbar {
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.375rem;
+}
+
+.page-head {
+  margin-bottom: 0;
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0;
+  }
+
+  .sub {
+    color: var(--fg-2);
+    font-size: 0.84375rem;
+    margin: 0.375rem 0 0;
+    line-height: 1.5;
+  }
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  margin: 1.125rem 0 1.5rem;
+}
+
+.stat-card {
+  padding: 0.875rem 1rem;
+}
+
+.stat-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--fg-2);
+}
+
+.stat-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin-top: 0.375rem;
+}
+
+.mine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty-action {
+  margin-top: 1rem;
+}
+
+@container wh-app (max-width: 639px) {
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .page-toolbar .btn-primary {
+    align-self: flex-start;
+  }
+}

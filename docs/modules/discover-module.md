@@ -1,137 +1,163 @@
 # Discover Module
 
-**Status:** Decisions landing · **Last updated:** 31 May 2026
-**Related PRD:** browse + search (§4.5), component model (§0, §4.3), install trigger (§4.4).
+**Status:** Decisions landing · **Last updated:** 6 Jun 2026
+**Related PRD:** Workflow marketplace (§4.5), component model (§4.3), install trigger (§4.4).
 
 ---
 
 ## 1. What it is
 
-The **Discover** module is where users **find workflows** — browse them, search them, filter by
-component type, and open a workflow's detail page to install/convert it.
+The **Discover** module is the **Workflow Marketplace** — where users find **complete solutions**
+(outcomes), not individual rules or skills.
 
-A **workflow is a bundle of components** (rules, commands, subagents, hooks, skills, …). When an
-author publishes a repo, we fetch it once and build a per-file record describing **what each file
-mainly does**; search runs over those records across **all** component types — not commands only.
+User intent:
 
-## 2. Access — LOGIN REQUIRED 🔒
+```text
+I want a workflow that does X.
+```
 
-**The entire Discover module requires login.** Browse, search, and detail are all behind auth — a
-logged-out user is redirected to Google sign-in first.
+Examples: PR Review Workflow, AI Research Workflow, Documentation Generator Workflow.
 
-> ⚠️ This **diverges from the current PRD**, which says browse/search are public (SR-6, WF-9).
-> Decision: login-gated. The PRD should be updated to match (flagged in §8).
+A workflow is a bundle of agent assets (rules, commands, subagents, hooks, skills). Those assets are
+indexed at publish and may **boost workflow relevance**, but Discover **never** returns individual
+assets as top-level results. For that, users go to **Agent Assets** (see
+[`agent-assets-module.md`](agent-assets-module.md)).
+
+## 2. Access — LOGIN REQUIRED
+
+The entire Discover module requires login. Browse, search, and detail are all behind auth.
 
 ## 3. Placement
 
 ```
 App sidebar
-  ├── Discover        <- this module (default landing after login)
+  ├── Discover        ← this module (default landing after login)
+  ├── Agent Assets    ← separate marketplace for reusable assets
   ├── Settings
-  └── ...
+  └── …
 ```
 
 ## 4. Screens
 
 | Screen | Purpose |
 |---|---|
-| **Browse / Search** | One screen: a search bar with quick filter chips below it, and a paginated list of workflow cards. With no query it's "browse all"; with a query it's "search results". |
-| **Workflow detail** | Everything about one workflow: metadata, components (manifest), source repo/commit, install count, and the **Install/Convert** action. |
+| **Discover home** | Workflow search, trending / new / browse sections, paginated workflow results. |
+| **Browse all** | Paginated workflow list with optional “contains type” filters. |
+| **Workflow detail** | Metadata, manifest, repo/commit, star + download counts, copy-clone get flow. |
 
-## 5. Search & filters (the core of this module)
+## 5. Search (workflows only)
 
 ### 5.1 Search bar
-A single search box. It matches across workflow metadata **and** every component's
-`summary` / `capabilities` / `commands` / `keywords` (the "what each file does" data built at
-publish). Not confined to commands.
 
-### 5.2 Filter chips (below the search bar, apply immediately)
-Multi-select toggle buttons — any combination can be active; results update instantly:
+Placeholder: `Search workflows…`
 
-```
-[ Rules ]  [ Commands ]  [ Subagents ]  [ Hooks ]  [ Skills ]
-```
+Helper text:
 
-- The component types are exactly these **five**: `rule`, `command`, `subagent`, `hook`, `skill`.
-- Each chip filters to workflows containing that component type.
-- Multi-select = OR within the chosen types (e.g. Rules + Hooks → workflows with rules *or* hooks).
-- Each chip shows a **facet count** (e.g. `Rules 12`) so the user sees what's available.
-
-> **Files that aren't one of the five types** (e.g. `mcp.json`, `README.md`, helper scripts) are
-> **not indexed as searchable components** and have no chip. They are still part of the repo and are
-> included when the whole workflow is installed — they're just supporting files, not first-class,
-> searchable/filterable components.
-
-### 5.3 How matches are shown (workflow-centric, with highlight)
-We do **not** show a standalone component (a lone skill/rule) as a result. A component always lives
-inside a workflow, so:
-- A match surfaces the **parent workflow card**, with the **matched component highlighted** on it
-  (e.g. a "matched: skill `code-review` ▸ `skills/review.md`" line on the card).
-- Clicking goes to the workflow detail, ideally scrolled to / highlighting that component.
-
-### 5.4 Paging
-**Pagination** (numbered pages / prev-next), not infinite scroll. Page size TBD (§8).
-
-### 5.5 Empty states
-- No workflows at all → friendly empty state.
-- No results for query/filters → "nothing matches" + a way to clear filters.
-
-## 6. Workflow card — proposed contents
-
-No ratings. **Install/download count** instead. Proposed card:
-
-```
-┌──────────────────────────────────────────────────────────┐
-│  Workflow Title                                            │
-│  One- or two-line description (truncated)…                 │
-│                                                            │
-│  ● 3 Rules   ● 2 Commands   ● 1 Hook        (type badges)  │
-│  #tag  #tag  #tag                                          │
-│                                                            │
-│  👤 Author name · avatar          ⬇ 1,240 installs         │
-│                                                            │
-│  — (search only) matched: skill `code-review` ▸ review.md  │
-└──────────────────────────────────────────────────────────┘
+```text
+Looking for rules, commands, skills, hooks, or agents?
+Browse Agent Assets →
 ```
 
-Fields shown:
-- **Title** + **short description**
-- **Component-type badges with counts** (the workflow's `component_types[]` + per-type counts) — this
-  is the at-a-glance "what's inside"
-- **Tags** (a few, overflow hidden)
-- **Author** (name + avatar)
-- **Install count** (replaces rating)
-- **Matched-component highlight** row — only on search results
-- Whole card is clickable → detail. (Optional quick "Install" on hover — §8.)
+### 5.2 Search scope (server-side)
 
-## 7. Install model — whole workflow only
+Matches across:
 
-**No per-file / partial download.** A user installs the **entire workflow**, not individual files —
-components in a workflow are usually related, so a single file in isolation is rarely useful. The
-detail page's Install/Convert action bundles the whole workflow (Install module handles the rest).
+- Workflow title, description, tags, author
+- Workflow metadata (complexity, target audience, source IDE)
+- **Contained asset names, tags, and keywords** (for ranking — not returned as rows)
 
-## 8. Decisions — resolved & remaining
+Does **not** return individual `rule.md`, `skill.md`, etc. as results.
 
-**Resolved**
-1. ✅ **Component types = the five only:** `rule`, `command`, `subagent`, `hook`, `skill`. No
-   `mcp_plugin`/`other`. Non-matching files are bundled at install but not indexed (see §5.2).
-2. ✅ **Update the PRD** to match these decisions (login-gated, install_count, 5-type enum). Doing.
-3. ✅ **Install count** — add `install_count` (int) to the `Workflow` model, incremented per install,
-   shown on the card. Replaces ratings.
+### 5.3 Home and browse APIs
 
-**Remaining (sensible defaults applied; adjust anytime)**
-4. **Page size** — default **12** per page.
-5. **Install trigger** — from the **detail page** only (whole workflow). The card just *shows* the
-   install count; it doesn't install.
-6. **Default sort** (no query) — **most-installed** first.
+Idle Discover home loads section data from a dedicated endpoint — **not** search:
 
----
+```http
+GET /api/workflows/home
+```
 
-## Definition of done (firms up after §8)
+Returns `{ trending, recent }` — each an array of `WorkflowCard`.
 
-- [ ] Discover is login-gated; logged-out users are sent to sign-in.
-- [ ] Browse + search on one screen with instant multi-select component-type filter chips (+ facet counts).
-- [ ] Search matches across all component types and surfaces the **parent workflow** with the matched component highlighted.
-- [ ] Workflow cards show title, description, type badges+counts, tags, author, and install count.
-- [ ] Pagination works; empty/loading/error states handled.
-- [ ] Detail page installs the **whole** workflow (no per-file download).
+Browse-all uses a separate paginated list endpoint:
+
+```http
+GET /api/workflows/browse?page=1&pageSize=12&types=rule,skill
+```
+
+`types` is optional (comma-separated component types). Returns `PagedResult<WorkflowCard>` sorted by downloads.
+
+### 5.4 Search API (text query only)
+
+Use search **only when the user submits a non-empty query**:
+
+```http
+POST /api/workflows/search
+```
+
+Returns `PagedResult<WorkflowCard>` — **workflows only**. Empty `query` is rejected (`400 SEARCH_QUERY_REQUIRED`).
+
+Request contract (MVP):
+
+```json
+{
+  "query": "pr review",
+  "page": 1,
+  "pageSize": 12,
+  "sortBy": "relevance",
+  "filters": {}
+}
+```
+
+Type filtering during text search uses `filters.componentTypes` (workflows that **contain** those types).
+
+### 5.5 URL state
+
+`q` and `page` in route query params. Rebuild criteria from URL on every load. See
+`ai-rules/cross-cutting/search-architecture-rules.md`.
+
+### 5.6 Match highlight (optional on card)
+
+When a query matched via a contained asset, the workflow card may show a subtle matched-asset line
+(e.g. “matched: skill `code-review`”). The card still represents the **workflow**; click → detail.
+
+### 5.7 Pagination
+
+Default page size **12**. Prev/next on search and browse-all.
+
+### 5.8 Empty states
+
+- No workflows → friendly empty state.
+- No search matches → broaden query + link to Agent Assets.
+
+## 6. Discover home sections (no active query)
+
+Loaded via `GET /api/workflows/home` — one request, not search.
+
+| Section | MVP behaviour |
+|---|---|
+| **Trending workflows** | Highest `download_count` |
+| **New workflows** | Recently published |
+| **Featured workflows** | Post-MVP (curated) |
+| **Categories** | Post-MVP — reserved in `filters` |
+| **Recommended** | Post-MVP (personalized) |
+
+## 7. Workflow card
+
+Title, description, component-type badges + counts, tags, author, star count, download count, star toggle.
+Optional matched-asset highlight on search results. Whole card → detail.
+
+## 8. Engagement model
+
+- **Stars:** binary toggle per user (`POST`/`DELETE /api/workflows/{id}/star`).
+- **Downloads:** increment only when user clicks **Copy clone command** on detail (`POST /api/workflows/{id}/download`).
+- No ratings/reviews in MVP. Install button is stubbed with an info toast only.
+
+## Definition of done
+
+- [ ] Idle home loads via `GET /api/workflows/home` (trending + new).
+- [ ] Browse-all loads via `GET /api/workflows/browse` with optional type filters.
+- [ ] Text search uses `POST /api/workflows/search` only with a non-empty `query`.
+- [ ] Helper link to Agent Assets visible in search hero.
+- [ ] URL-driven search state (`q`, `page`).
+- [ ] No component/asset rows in Discover results.
+- [ ] Empty / loading / error states handled.

@@ -1,0 +1,66 @@
+.asset-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.asset-head {
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.type-chip {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0.125rem 0.4375rem;
+  border-radius: 999px;
+  background: var(--purple-100);
+  color: var(--purple-600);
+}
+
+.asset-name {
+  background: var(--grey-900);
+  color: var(--blue-300);
+  padding: 0.1875rem 0.5625rem;
+  border-radius: 6px;
+  font-size: 0.78125rem;
+  font-weight: 600;
+}
+
+.in-label {
+  font-size: 0.78125rem;
+  color: var(--fg-3);
+}
+
+.file-name {
+  font-family: ui-monospace, monospace;
+  font-size: 0.78125rem;
+  font-weight: 700;
+}
+
+.asset-desc {
+  margin: 0;
+  color: var(--fg-2);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.asset-parent {
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  padding: 0.5625rem 0.6875rem;
+  background: var(--blue-50);
+  border-radius: 10px;
+  border: 1px solid var(--blue-100);
+  font-size: 0.78125rem;
+  color: var(--fg-2);
+
+  b {
+    color: var(--brand);
+  }
+
+  .arrow {
+    margin-left: auto;
+    color: var(--fg-3);
+  }
+}

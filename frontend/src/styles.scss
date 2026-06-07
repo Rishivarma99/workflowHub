@@ -19,6 +19,9 @@
 /* Base element styling. */
 @use 'styles/base/reset.scss';
 
+/* Discover module shared layout primitives (design-reference aligned). */
+@use 'app/features/workflows/discover/styles/discover-shared';
+
 /* Centralized third-party overrides live under:
  *   styles/prime-overrides/  (PrimeNG)
  *   styles/ag-grid/          (AG Grid)

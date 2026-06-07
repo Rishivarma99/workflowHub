@@ -1,7 +1,7 @@
 # Workflow Hub — MVP Product Requirements Document (PRD)
 
-**Status:** Draft v0.4 (MVP scope) — GitHub link + clone command (no backend download, no IDE conversion)
-**Last updated:** 31 May 2026
+**Status:** Draft v0.5 (MVP scope) — GitHub link + clone command (no backend download, no IDE conversion)
+**Last updated:** 7 Jun 2026
 **Owner:** _(you)_
 
 ---
@@ -10,7 +10,9 @@
 
 Workflow Hub is a place to **publish and discover IDE workflows that live in public GitHub repos**, and to **get the complete workflow** (clone it at its pinned commit) on demand.
 
-A **workflow is a bundle of one or more component types** — not just commands. A single workflow can contain any mix of these **five** component types: **rules**, **commands**, **subagents**, **hooks**, and **skills**. Each component is indexed and searchable **individually**, and discovery can be **filtered by component type** (see §4.3 and §4.5). Other files in the repo (scripts, configs, docs, MCP/plugin settings, `README`s) are **not indexed as components** — they are bundled and installed with the workflow but are not separately searchable/filterable.
+A **workflow is a bundle of one or more agent asset types** — not just commands. A single workflow can contain any mix of these **five** indexed types: **rules**, **commands**, **subagents**, **hooks**, and **skills**. Other files in the repo (scripts, configs, docs, MCP/plugin settings, `README`s) are **not indexed** — they are bundled at install but are not searchable.
+
+**Workflows and agent assets are different products.** Discover is a **Workflow Marketplace** (returns workflows only). **Agent Assets** is a separate **AI Agent Asset Marketplace** (returns individual assets only). Each has its own search endpoint, ranking, filters, and pagination (see §4.5, §4.7, §5.3). Workflow search may use contained asset names/tags for relevance, but individual assets never appear as Discover results.
 
 Key shift from v0.1: **we do not store copies of workflow files.** A published workflow is essentially a *pinned reference* to a public GitHub repo — its URL, the exact commit SHA at publish time, plus searchable metadata. We never host or stream the files. To get a workflow, the user is given the GitHub repo link and a `git clone` command pinned to the exact commit. (We fetch the repo once at publish to build the manifest, then discard it — see §4.4 and §6.)
 
@@ -27,7 +29,8 @@ People build useful IDE workflows (rules, commands, agent configs, scripts) and 
 A web platform where users:
 - Log in with **Google** (only auth method in MVP), with **our own JWT** minted by the backend.
 - **Publish** a workflow by pointing at a public GitHub repo; we pin the commit SHA and store metadata + a small manifest. **No file copies.**
-- **Search** across all workflows at both the workflow level and the command/capability level, and be told *which workflow* contains a given thing.
+- **Discover workflows** in the Workflow Marketplace — search by outcome (“PR review workflow”), including matches inside contained assets for ranking, but results are **workflows only**.
+- **Discover agent assets** in a separate Agent Asset Marketplace — search for individual rules, commands, skills, hooks, and agents.
 - **Get** a workflow: we show the GitHub repo link + a `git clone` command pinned to the commit. No backend download, no IDE conversion.
 
 ### 1.3 Why pin the commit SHA
@@ -40,8 +43,9 @@ The version a user gets must be the version that was shown on the detail page. I
 ### 2.1 MVP Goals
 - Google-only sign-in, with our own backend-minted JWT.
 - Publish a workflow as a pinned reference (repo URL + commit SHA + metadata + manifest). No permanent source copies.
-- Search workflows by title/description **and** by component, returning which workflow + file contains the match.
-- Browse of workflows — **login required** (see §4.5; the whole Discover area is behind auth).
+- **Workflow search** (Discover): title/description/tags/author/metadata + contained asset text for relevance → ranked **workflows only**.
+- **Agent asset search** (Agent Assets): asset name/description/content/tags/type → ranked **assets only**.
+- Browse/search for both marketplaces — **login required** (see §4.5, §4.7).
 - **Get the workflow:** show the GitHub repo link + a `git clone` command pinned to the commit. No backend download.
 
 ### 2.2 Non-goals (out of scope for MVP)
@@ -55,9 +59,10 @@ The version a user gets must be the version that was shown on the detail page. I
 - Server-side conversion into a target IDE format (instead we tag the source IDE and give the user a conversion prompt to run themselves — see §4.4).
 - Hosting, fetching, zipping, or streaming workflow files for download (users clone from GitHub directly).
 
-> **Ratings note (decided):** ratings are **dropped for MVP**. Instead, each workflow shows an
-> **install count** (`install_count`) on cards and the detail page. A full ratings/reviews system is
-> a possible post-MVP fast-follow.
+> **Engagement note (decided):** ratings/reviews are **dropped for MVP**. Workflows show **star count**
+> (binary toggle per user) and **download count** on cards and detail. Agent assets show **star count**
+> only — no download counter. Download count increments only when the user clicks **Copy clone command**
+> on workflow detail (not on page view).
 
 ---
 
@@ -66,12 +71,13 @@ The version a user gets must be the version that was shown on the detail page. I
 | Persona | Goal |
 |---|---|
 | **Author** | Publish a workflow from their public repo so others can discover and get it. |
-| **Installer** | Find a workflow (or a specific component), then get the whole workflow (clone it). |
+| **Installer** | Find a workflow (solution) or a reusable agent asset, then get the whole workflow (clone it). |
+| **Builder** | Find a specific rule, command, skill, hook, or agent to reuse or inspect. |
 
 **Primary use cases**
 1. *As an Author*, I log in with Google and publish a workflow by pasting a public repo URL; we pin the commit and index its files.
-2. *As an Installer*, I search "github commit summary," open the result, and get the GitHub link + a pinned `git clone` command for the workflow.
-3. *As an Installer*, I search for a specific component (e.g. a skill or hook) and the result tells me which workflow + file contains it.
+2. *As an Installer*, I search Discover for "PR review workflow," open the result, and get the GitHub link + a pinned `git clone` command.
+3. *As a Builder*, I search Agent Assets for "cursor rule code review," open the asset, and see which workflow contains it before installing the whole bundle.
 
 ---
 
@@ -147,20 +153,86 @@ git -C <repo> checkout <commit_sha>
 **Requirements**
 - GEN-1: Always reference the **pinned** `commit_sha`, never "latest."
 - GEN-2: We do **not** host, fetch, zip, or stream the files — the user clones from GitHub directly.
-- GEN-3: Taking a workflow (clicking get / copying the command) increments `install_count`.
+- GEN-3: Clicking **Copy clone command** on workflow detail increments `download_count` (each click counts once).
 - GEN-4: To use a workflow in a **different IDE**, we return a ready-to-run **conversion prompt** (the user runs it in their own agent). No server-side conversion.
 - GEN-5: Clear, user-facing errors if the repo is gone/private or the commit no longer exists (see §7).
 - GEN-6: Before the clone command, show the workflow's **MCP/plugin dependencies** panel (§4.6, DEP-4) so the user sets up required servers/plugins first.
 
-### 4.5 Search
-Served from the manifest/search index (§5.3):
-- SR-1 **Workflow search:** matches title/description/tags → ranked workflows.
-- SR-2 **Component search:** matches a component's author/derived `summary`/`capabilities`/`keywords` → returns the **component (file) + parent workflow** ("this hook appears in Workflow Y → file `on-save.sh`"). Covers all five types — rule, command, subagent, hook, skill.
-- SR-3 **Filter by component type:** the user can constrain search/browse to one or more `component_type` values (e.g. only `rule`, only `subagent`, or `command`+`hook`). Each type is also browsable on its own.
-- SR-4 **Per-type facets:** results show counts per component type so the user sees "12 rules, 4 commands, 2 subagents" and can drill into each individually.
-- SR-5 Results link straight to the workflow (ideally the matching component/file).
-- SR-6 **Login required:** browse, search, and filters are all behind auth — logged-out users are redirected to sign-in. (The whole Discover area requires login.)
-- SR-7 Graceful empty-state handling (including "no results for this type filter").
+### 4.5 Discover — Workflow Marketplace search
+
+Discover helps users find **complete solutions**. User intent: *"I want a workflow that does X."*
+
+**Search scope (ranking inputs):** workflow title, description, tags, categories (future), author, metadata, and **contained asset names/tags/keywords** (for relevance only).
+
+**Returns:** **workflows only** — never individual asset files as top-level rows.
+
+**API:** `GET /api/workflows/home` for idle browse sections; `GET /api/workflows/browse` for paginated type-filter browse; `POST /api/workflows/search` when the user enters a text query (`query`, `page`, `pageSize`, `sortBy`, `filters`).
+
+**Requirements**
+- SR-1 **Workflow-only results:** every row is a workflow card; assets may influence ranking and optional on-card match highlight, but not appear as separate result types.
+- SR-2 **Contained asset matching:** searching "cursor" or "pr review" can surface a workflow because an contained asset matches — user still gets the workflow.
+- SR-3 **Discover sections (idle browse):** Trending (by downloads), New (recent), Featured (curated — post-MVP), Categories (post-MVP).
+- SR-4 **Browse-all:** paginated workflow list; optional `filters.componentTypes` = workflows that contain selected types.
+- SR-5 **Login required:** Discover browse/search behind auth.
+- SR-6 **URL-driven search state** on the frontend; server-side pagination from day one.
+- SR-7 Graceful empty states + link to Agent Assets ("Looking for rules, commands, skills…?").
+
+### 4.7 Agent Assets — AI Agent Asset Marketplace search
+
+Agent Assets helps **builders** find reusable AI building blocks. User intent: *"I need a Cursor rule / Claude command / skill / hook / agent."*
+
+**Search scope:** asset name, description, content keywords, tags, author, asset type.
+
+**Returns:** **individual agent assets only** — not workflows as top-level rows (parent workflow shown as secondary context on the card).
+
+**Asset types (MVP):** `rule`, `command`, `skill`, `hook`, `subagent` (displayed as Agents). Future: templates, prompts, subskills — extend types without UX redesign.
+
+**API:** `GET /api/agent-assets/home` for idle browse sections; `GET /api/agent-assets/browse` for paginated type-filter browse; `POST /api/agent-assets/search` when the user enters a text query — same structured request shape as workflow search.
+
+**Requirements**
+- AA-1 **Asset-only results:** each row is one indexed manifest component (`WorkflowComponent`).
+- AA-2 **Type filter chips:** All, Rules, Commands, Skills, Hooks, Agents — via `filters.assetTypes`.
+- AA-3 **Sections (idle browse):** Popular (by asset star count), New (recently published).
+- AA-4 **Categories:** post-MVP — reserved in `filters`.
+- AA-5 **Login required**; URL-driven search state; paginated responses.
+- AA-6 Clicking an asset opens the parent workflow detail (highlight asset).
+
+### 4.8 Learn — knowledge center
+
+Learn is WorkflowHub's **knowledge center**. Its purpose is to educate users about workflows, agent assets, design principles, publishing standards, best practices, and platform concepts.
+
+**Not a traditional blog** — it mixes documentation, guides, knowledge-base articles, and educational content.
+
+**Content types**
+- **Guide** — long-lived, foundational, may be pinned (3–5 max). Examples: *How to Create High Quality Workflows*, *Understanding Workflows*, *Understanding Agent Assets*, *Publishing Guidelines*.
+- **Article** — educational content published over time. Examples: *Building a Research Workflow*, *Common Workflow Mistakes*.
+
+**Search scope:** article title, summary, markdown content (via denormalized search text), category name.
+
+**Returns:** **articles only** — never workflows or agent assets. Learn search is fully isolated from Discover and Agent Assets.
+
+**API:** `POST /api/articles/search` — structured request (`query`, `page`, `pageSize`, optional `filters.category`).
+
+**Homepage sections (idle browse):** Getting Started (pinned guides), Latest Articles, Categories.
+
+**URLs:** `/learn`, `/learn/:slug` (e.g. `/learn/how-to-create-high-quality-workflows`).
+
+**Content format:** article body stored as **Markdown** from day one.
+
+**Requirements**
+- LN-1 **Article-only results:** Learn search never returns workflows or agent assets.
+- LN-2 **Pinned guides:** 3–5 pinned onboarding guides on the Learn homepage.
+- LN-3 **Categories:** Workflow Design, Agent Assets, Architecture, Tutorials, Best Practices (MVP seed).
+- LN-4 **Login required** for Learn browse/search (consistent with other marketplaces).
+- LN-5 **URL-driven search state** on the frontend; server-side pagination.
+- LN-6 **Super Admin only** creates/manages content in MVP (seed + API; admin UI post-MVP).
+- LN-7 Article detail renders markdown; guides and articles share the same detail UX with a type badge.
+
+**Roles (MVP)**
+- **User:** read, search, share articles.
+- **Super Admin:** create, edit, delete, publish, pin articles; manage categories.
+
+Future roles (Contributor, Editor, Moderator) are post-MVP.
 
 ### 4.6 Workflow dependencies (MCP servers & plugins)
 
@@ -217,12 +289,32 @@ Workflow
   component_types (string[]) # distinct component_types present (denormalized for fast filtering/facets)
   dependencies (jsonb)       # MCP/plugin deps (NOT components, NOT secrets) — §4.6
                              # [{kind: mcp|plugin, name, requirement: required|optional, note}, ...]
-  install_count (int, default 0)  # number of installs/downloads; shown on cards & detail (replaces ratings)
+  star_count (int, default 0)       # denormalized; updated by workflow_stars
+  download_count (int, default 0)   # copy-clone clicks; shown on cards & detail
   visibility (enum: public)  # MVP: public only (but Discover/browse still requires login)
   search_vector (tsvector)   # generated from manifest + title + tags
   created_at, updated_at
 
 # NOTE: no File table and no file content stored. Users clone from GitHub directly.
+
+ArticleCategory
+  id (uuid, pk)
+  name, slug (unique), description
+
+Article
+  id (uuid, pk)
+  slug (string, unique)
+  title, summary
+  content (text)           # markdown body
+  category_id (fk -> ArticleCategory)
+  author_id (fk -> User)
+  status (enum: draft | published)
+  content_type (enum: guide | article)
+  is_pinned (bool)
+  published_at
+  search_text (text)       # denormalized for keyword search
+  created_at, updated_at
+  + soft-delete / audit fields (ITrackable)
 ```
 
 ### 5.2 Storage strategy (the key decision)
@@ -232,10 +324,28 @@ Workflow
 - **Snapshotting (v2):** copying repo files into our storage as a permanent backup is a *reliability* upgrade for later — not a day-one need (see §7).
 
 ### 5.3 Search architecture
-- MVP: Postgres full-text search. Build `search_vector` from BOTH the author and derived manifest blocks (summaries, capabilities, keywords) + workflow title/tags; weight `derived` higher; GIN index; rank with `ts_rank`.
-- Powers SR-1 (workflow) and SR-2 (component) from one index.
-- **Component-type filtering (SR-3/SR-4):** index `component_type` per manifest entry and the denormalized `component_types[]` on the workflow. Queries can filter by one or more types and compute per-type facet counts. GIN index on `component_types[]` for fast filtering.
-- Post-MVP: vector embeddings (pgvector) for natural-language/semantic queries, hybrid ranking. Not required for MVP.
+
+**Three independent search systems** — no mixed-entity endpoints. Each marketplace also exposes **dedicated home and browse APIs** so page loads never call search with an empty query.
+
+| Marketplace | Home (idle sections) | Browse (filters, no text) | Search (text query required) | Returns |
+|---|---|---|---|---|
+| Discover (workflows) | `GET /api/workflows/home` | `GET /api/workflows/browse` | `POST /api/workflows/search` | Workflows only |
+| Agent Assets | `GET /api/agent-assets/home` | `GET /api/agent-assets/browse` | `POST /api/agent-assets/search` | Agent assets only |
+| Learn | `GET /api/articles/home` | — | `POST /api/articles/search` | Articles only |
+
+Shared rules (see `ai-rules/cross-cutting/search-architecture-rules.md`):
+
+- **Search** endpoints require a non-empty `query` and use structured request: `query`, `page`, `pageSize`, `sortBy`, `filters`.
+- **Home** endpoints return curated section lists (trending/new, popular/new, pinned guides, etc.) — one call per page open.
+- **Browse** endpoints paginate default lists with optional type filters — no full-text matching.
+- Stateless server; ranking and pagination on the server; `PagedResult<T>` for browse/search.
+- Frontend URL encodes search/filter state; criteria rebuilt from URL before each API call.
+
+**Indexing (MVP):** Postgres `SearchText` on `Workflow` and `WorkflowComponent`, built at publish from author + derived manifest blocks. Workflow `SearchText` includes contained asset fields for Discover relevance. Component rows power Agent Asset search directly.
+
+**Filtering:** `filters.componentTypes` on workflow search (workflows containing types). `filters.assetTypes` on asset search. Categories/post-MVP facets reserved in `filters`.
+
+Post-MVP: vector embeddings (pgvector), hybrid ranking, featured/curated lists.
 
 ---
 
@@ -247,18 +357,28 @@ POST   /auth/refresh
 POST   /auth/logout
 GET    /me                  # current user (protected)
 
-POST   /workflows           # publish: validate repo+commit, fetch once, build manifest (author+derived) (protected)
-GET    /workflows           # browse (protected — login required)
-GET    /workflows/:id       # detail incl. manifest, repo, commit, install_count (protected)
-PATCH  /workflows/:id       # edit metadata / re-publish (bump commit) (owner)
+POST   /workflows           # publish (protected)
+GET    /workflows/home      # discover home sections → DiscoverHomeDto (protected)
+GET    /workflows/browse    # paginated browse + optional type filter → PagedResult<WorkflowCard> (protected)
+POST   /workflows/search    # text search only (non-empty query) → PagedResult<WorkflowCard> (protected)
+GET    /workflows/:id       # detail incl. manifest, repo, commit, star_count, download_count, is_starred (protected)
+POST   /workflows/:id/star  # star workflow (protected)
+DELETE /workflows/:id/star  # unstar workflow (protected)
+POST   /workflows/:id/download  # increment download_count after copy-clone (protected)
+PATCH  /workflows/:id       # edit metadata / re-publish (owner)
 DELETE /workflows/:id       # delete (owner)
 
-GET    /workflows/:id/get             # returns repo link + pinned `git clone` command; increments install_count (protected)
-GET    /workflows/:id/convert-prompt?target_ide=...   # returns a prompt the user runs to convert to their IDE (protected)
-GET    /publish/template              # download the analysis prompt + manifest template (protected)
-GET    /search?q=...&scope=workflow|component&component_type=rule,command,subagent,hook,skill   # protected
-       # scope: search whole workflows or individual components
-       # component_type: optional CSV filter (one or more of the five); response includes per-type facet counts
+GET    /agent-assets/home   # popular + new sections → AgentAssetsHomeDto (protected)
+GET    /agent-assets/browse # paginated browse + optional type filter → PagedResult<AgentAssetCard> (protected)
+POST   /agent-assets/search # text search only (non-empty query) → PagedResult<AgentAssetCard> (protected)
+POST   /agent-assets/:id/star   # star agent asset (protected)
+DELETE /agent-assets/:id/star   # unstar agent asset (protected)
+GET    /workflows/:id/convert-prompt?target_ide=...   # conversion prompt (protected)
+GET    /publish/template              # analysis prompt + manifest template (protected)
+
+GET    /articles/home                 # pinned guides, latest articles, categories (protected)
+POST   /articles/search               # learn search → PagedResult<ArticleCard> (protected)
+GET    /articles/:slug                # article detail incl. markdown content (protected)
 ```
 
 ---
@@ -283,7 +403,7 @@ GET    /search?q=...&scope=workflow|component&component_type=rule,command,subage
 ## 9. Open questions
 1. ~~Target IDE(s) for MVP~~ — **decided: no IDE conversion; download the repo as-is** (see §4.4).
 2. ~~Where do mapping rules live~~ — **N/A; no mapping in MVP.**
-3. ~~Ratings in MVP~~ — **decided: dropped for MVP; show `install_count` instead** (see §2.2).
+3. ~~Ratings in MVP~~ — **decided: dropped for MVP; stars + download_count instead** (see §2.2).
 4. ~~Output zip cache~~ — **decided: no backend download at all; users clone from GitHub** (see §4.4).
 5. ~~Sync vs queued worker~~ — **decided: N/A; no download job** (see §4.4).
 6. Refresh token storage: httpOnly cookie vs client-held?
@@ -297,12 +417,15 @@ GET    /search?q=...&scope=workflow|component&component_type=rule,command,subage
 - [ ] Google login works end-to-end; backend mints & validates our JWT.
 - [ ] Author can publish a workflow from a public repo; commit SHA pinned; manifest built; no file copies kept.
 - [ ] Owner can edit metadata / re-publish / delete.
-- [ ] Logged-in users can browse and open workflows (browse/search are login-gated).
-- [ ] A workflow can contain a mix of the five component types (rule, command, subagent, hook, skill); each is individually indexed.
-- [ ] Workflow-level search works.
-- [ ] Component search returns the component (file) + which workflow it's in, for **all five** component types (not commands only).
-- [ ] Search/browse can be filtered by component type, with per-type facet counts.
-- [ ] Workflow cards/detail show `install_count`; getting a workflow increments it.
+- [ ] Logged-in users can browse Discover (workflows) and Agent Assets as separate experiences.
+- [ ] A workflow can contain a mix of the five asset types; each is indexed at publish.
+- [ ] Discover home loads via `GET /workflows/home`; browse-all via `GET /workflows/browse`; text search via `POST /workflows/search` (non-empty query only).
+- [ ] `POST /workflows/search` returns workflows only; contained assets boost relevance but never appear as separate rows.
+- [ ] Agent Assets home loads via `GET /agent-assets/home`; type-only browse via `GET /agent-assets/browse`; text search via `POST /agent-assets/search` (non-empty query only).
+- [ ] `POST /agent-assets/search` returns individual assets only.
+- [ ] Discover idle sections: trending + new workflows; Agent Assets: popular + new assets (from home APIs, not search).
+- [ ] Type filter chips on Agent Assets; browse-all type filter on Discover.
+- [ ] Workflow cards/detail show star + download counts; copy-clone increments download count.
 - [ ] Getting a workflow shows its GitHub link + a `git clone` command pinned to the commit.
 - [ ] Publish stores BOTH author-supplied and our derived manifest data per component.
 - [ ] Publish scans for MCP/plugin config, pre-fills detected dependencies, and lets the author add/confirm them via a small form (kind, name, required/optional, short note — no secrets).
@@ -310,3 +433,7 @@ GET    /search?q=...&scope=workflow|component&component_type=rule,command,subage
 - [ ] Author can generate manifest input via the provided analysis prompt + template.
 - [ ] Workflow stores/shows its source IDE; a conversion prompt is offered for a different IDE.
 - [ ] Clear error when source repo/commit is unavailable.
+- [ ] Learn homepage shows pinned guides, latest articles, and categories.
+- [ ] `POST /articles/search` returns articles only; isolated from workflow/asset search.
+- [ ] Article detail pages render markdown content at `/learn/:slug`.
+- [ ] Four pinned onboarding guides seeded (create workflows, understanding workflows, understanding agent assets, publishing guidelines).

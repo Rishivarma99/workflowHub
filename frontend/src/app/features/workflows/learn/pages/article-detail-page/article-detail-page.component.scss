@@ -1,0 +1,102 @@
+@use '../../../discover/styles/discover-shared';
+
+:host {
+  display: block;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  color: var(--fg-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  gap: 0.375rem;
+
+  &:hover {
+    color: var(--brand);
+  }
+}
+
+.article-shell {
+  padding: 1.5rem 1.25rem 2rem;
+}
+
+.article-header {
+  border-bottom: 1px solid var(--grey-100);
+  padding-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.meta-row {
+  gap: 0.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.type-chip {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.1875rem 0.5rem;
+  border-radius: 999px;
+  background: var(--blue-50);
+  color: var(--brand);
+  border: 1px solid var(--blue-100);
+
+  &.guide {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #bbf7d0;
+  }
+}
+
+.category-chip {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fg-2);
+  background: var(--grey-50);
+  border: 1px solid var(--grey-100);
+  border-radius: 999px;
+  padding: 0.1875rem 0.625rem;
+}
+
+.pin-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--fg-2);
+  gap: 0.25rem;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+
+.lead {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--fg-2);
+}
+
+.byline {
+  font-size: 0.8125rem;
+  color: var(--fg-2);
+  gap: 0.375rem;
+}
+
+.dot {
+  opacity: 0.5;
+}
+
+.article-body {
+  max-width: 42rem;
+}
+
+@media (min-width: 768px) {
+  .article-shell {
+    padding: 2rem 2rem 2.5rem;
+  }
+}

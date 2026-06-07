@@ -1,5 +1,5 @@
 using WorkflowHub.Application.CQRS.Abstractions;
-using WorkflowHub.Application.Contracts.Persistence;
+using WorkflowHub.Data.Abstractions.Persistence;
 
 namespace WorkflowHub.Application.CQRS.Behaviors;
 

@@ -1,6 +1,6 @@
 import { WhIconName } from '../../../../shared/ui/icon/wh-icon.component';
 
-export type WorkflowsNavId = 'discover' | 'search' | 'mine' | 'create' | 'settings';
+export type WorkflowsNavId = 'discover' | 'agentAssets' | 'learn' | 'mine' | 'create' | 'settings';
 
 export interface WorkflowsNavItem {
   id: WorkflowsNavId;
@@ -23,10 +23,18 @@ export const WORKFLOWS_REGISTRY_NAV: WorkflowsNavItem[] = [
     primary: true
   },
   {
-    id: 'search',
-    icon: 'search',
-    label: 'Search',
-    path: '/workflows/search',
+    id: 'agentAssets',
+    icon: 'blocks',
+    label: 'Agent Assets',
+    path: '/workflows/agent-assets',
+    tabBar: true,
+    primary: true
+  },
+  {
+    id: 'learn',
+    icon: 'book-open',
+    label: 'Learn',
+    path: '/workflows/learn',
     tabBar: true,
     primary: true
   },

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -34,19 +34,12 @@ export class WorkflowsLayoutComponent {
     };
   });
 
-  readonly searchQuery = signal('');
-
   onCreateWorkflow(): void {
     void this.router.navigate(['/workflows/create']);
   }
 
   onOpenSettings(): void {
     void this.router.navigate(['/workflows/settings']);
-  }
-
-  onSubmitSearch(): void {
-    const q = this.searchQuery().trim();
-    void this.router.navigate(['/workflows/search'], { queryParams: q ? { q } : {} });
   }
 
   onSignOut(): void {
