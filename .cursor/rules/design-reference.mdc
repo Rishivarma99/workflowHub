@@ -1,0 +1,30 @@
+---
+description: Use workflowHub-design-reference for UI structure and styling decisions
+globs: frontend/**/*.{html,scss,ts}
+alwaysApply: false
+---
+
+# Design reference — visual and structural guide
+
+Generated HTML/React screens live in the sibling folder `../workflowHub-design-reference/`.
+Use them **only as a visual and structural reference** when building Angular screens.
+
+## Rules
+
+- **Never** import, copy-paste, or ship reference code into the Angular app.
+- Re-express layouts in Angular idioms: standalone components, Tailwind, PrimeNG, SCSS tokens.
+- Match structure, spacing, typography, and interaction patterns from the reference.
+- Implement under `frontend/src/app/features/<area>/` per ai-rules folder-structure rules.
+- Pointer doc: `design-reference/README.md` in this repo.
+
+## Key reference files
+
+| File | Purpose |
+|---|---|
+| `Workflow Hub.html` | Full-page layout overview |
+| `app.jsx` / `app.css` | App shell and global styles |
+| `colors_and_type.css` | Color and typography tokens |
+| `ui.jsx` | Reusable UI primitives |
+| `screens*.jsx` | Individual screen layouts |
+
+When the reference and PRD conflict, follow the PRD and coordinate with design.

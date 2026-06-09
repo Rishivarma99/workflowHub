@@ -1,67 +1,58 @@
 ---
-description: Core project rules for Workflow Hub (ai-rules library, design reference, tech stack, layout, conventions)
+description: Core project rules for Workflow Hub frontend (ai-rules, design reference, tech stack, layout)
 alwaysApply: true
 ---
 
-# Workflow Hub — project rules
+# Workflow Hub Frontend — project rules
 
-## Rule 0 — the `ai-rules/` library is MANDATORY
+## Rule 0 — follow `ai-rules/` (MANDATORY)
 
-The coding-standards library lives in a **sibling repo** `../ai-rules/` (next to `workflowHub/`,
-kept open in the same workspace). It is the single source of truth — **every code change must follow
-it**. Do **not** load the whole tree (it's large and wastes context).
+Coding standards live in sibling repo `../ai-rules/` (absolute:
+`C:\Users\rishi.alluri\OneDrive - McKissock LP\Documents\Projects\ai-rules`).
 
-Loading protocol (follow every time you write code):
-1. Open the master index `../ai-rules/RULES-INDEX.md`.
-2. Classify the task — frontend (Angular), backend (.NET), or both.
-3. Load **only** the 2–5 rule files matching the task, plus that domain's **always-on** files.
-4. If you'd load more than ~6 rule files for one task, re-scope.
-5. If the rules aren't at `../ai-rules/`, clone them:
-   `git clone https://gitlab.pal.tech/rishi.alluri/ai-rules.git ../ai-rules`
+1. Start at `../ai-rules/RULES-INDEX.md`, then `frontend/00-index/frontend-rules-index.md`.
+2. Load **only** 2–5 task-matching frontend rule files per change.
+3. Always include: `folder-structure-and-boundary-rules.md`, `naming-and-file-rules.md`,
+   `forbidden-patterns-rules.md` (under `frontend/01-architecture/` and `frontend/05-quality/`).
+4. See `.cursor/rules/ai-rules.mdc` for the full loading protocol.
 
-When a rule and a quick hack conflict, the rule wins — or flag it.
+## Rule 1 — design-reference for ALL UI/design decisions (MANDATORY)
 
-## Design reference
+Before building or changing any UI, read the sibling design-reference repo:
 
-Generated HTML/React screens live in the **sibling folder** `../workflowHub-design-reference/`
-(outside this repo). Use them **only** as a visual/structural reference for building real
-Angular 20 + Tailwind + PrimeNG screens — never ship or import that code. See
-`design-reference/README.md`.
+- Relative: `../workflowHub-design-reference/`
+- Absolute: `C:\Users\rishi.alluri\OneDrive - McKissock LP\Documents\Projects\workflowHub-design-reference`
 
-## What this product is
+Consult `colors_and_type.css` (tokens), `app.css` (styles), `app.jsx` (shell), `ui.jsx`
+(primitives), and the relevant `screens*.jsx` for the screen. Match layout and visual intent;
+implement in Angular + Tailwind + PrimeNG. **Never** import or ship reference code.
+See `.cursor/rules/design-reference.mdc` when editing `frontend/**` UI files.
 
-A platform to **publish and discover IDE workflows that live in public GitHub repos** and **get
-them** (pinned `git clone`) on demand. A published workflow is a *pinned reference* (repo URL +
-commit SHA + metadata + small manifest) — **we never store copies of workflow files**. Full spec:
-`workflowHub-prd-v2.md` (source of truth for features and data model).
+## Related repos
+
+- **Backend API:** `../workflowHub-backend/`
+- **Product spec:** `workflowHub-prd-v2.md` in this repo
 
 ## Tech stack
 
-- **Frontend:** Angular 20 (standalone, application builder), Tailwind CSS, PrimeNG, SCSS.
-  Use PrimeNG for rich components; Tailwind for layout/spacing/styling.
-- **Backend:** .NET 8 (pinned via `backend/global.json` — do not bump), CQRS, EF Core + Npgsql
-  (PostgreSQL), JWT auth.
-- **Search:** PostgreSQL full-text (MVP).
+- **Angular 20** (standalone, application builder), Tailwind CSS, PrimeNG, SCSS
+- **API:** `environment.apiBaseUrl` — `/api` with proxy in local dev
 
-## Repository layout & boundaries
+## Repository layout
 
 ```
 frontend/src/app/  → core/ (singletons), shared/ (reusable UI), features/ (auth, workflows, home)
-backend/src/       → WorkflowHub.Api → Application → Data → Common
 ```
-
-Backend dependency direction: `Api → Application → Data → Common`. Nothing depends on `Api`.
 
 ## Conventions
 
-- **Rules first:** load the relevant `../ai-rules/` files before writing code.
-- **Match the PRD** for feature behavior + data model; match `ai-rules/` for *how* to build it.
-- **Angular selector/component prefix is `wh`** (e.g. `wh-root`).
-- Keep `Program.cs` thin; respect backend layer boundaries.
-- **No secrets in source control** (JWT key, Google client secret).
-- Profile pictures reuse the Google `avatar_url` from login — no uploads/object storage.
+- **Rules first** — load relevant `../ai-rules/` frontend files before writing code.
+- **Design first** — check `../workflowHub-design-reference/` before any UI/layout/styling work.
+- **Match the PRD** for feature behavior; coordinate API changes with `workflowHub-backend`.
+- **Angular prefix is `wh`** (e.g. `wh-root`).
+- **No secrets in source control** (Google client ID is public; no JWT keys here).
 
 ## Commands
 
-- Frontend (`frontend/`): `npm install`, `npm start`, `npm run build` (keep green), `npm test`.
-- Backend (`backend/`): `dotnet build` (keep green), `dotnet run --project src/WorkflowHub.Api`.
+- Frontend (`frontend/`): `npm install`, `npm start -- --port 4290`, `npm run build`, `npm test`
+- Dev URL: http://localhost:4290/

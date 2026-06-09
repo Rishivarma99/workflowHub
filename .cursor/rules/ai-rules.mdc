@@ -1,0 +1,28 @@
+---
+description: Mandatory ai-rules loading protocol for all frontend work
+alwaysApply: true
+---
+
+# ai-rules — mandatory coding standards
+
+The standards library lives in the sibling repo `../ai-rules/` (GitLab: `rishi.alluri/ai-rules`).
+**Every code change must follow those rules.**
+
+## Loading protocol
+
+1. Open `../ai-rules/RULES-INDEX.md` — never load the whole tree.
+2. Classify the task (frontend only for this repo).
+3. Open `../ai-rules/frontend/00-index/frontend-rules-index.md` and pick **2–5** matching rule files.
+4. Always load the frontend always-on set from RULES-INDEX:
+   - `frontend/01-architecture/folder-structure-and-boundary-rules.md`
+   - `frontend/05-quality/naming-and-file-rules.md`
+   - `frontend/05-quality/forbidden-patterns-rules.md`
+5. Add cross-cutting files only when the task needs them (e.g. `cross-cutting/search-architecture-rules.md`).
+
+> Token discipline: typical tasks need **2–4 rule files**, not the entire library.
+
+If `../ai-rules/` is missing:
+
+```bash
+git clone https://gitlab.pal.tech/rishi.alluri/ai-rules.git ../ai-rules
+```
