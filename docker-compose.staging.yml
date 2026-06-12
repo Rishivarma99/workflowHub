@@ -1,0 +1,14 @@
+# Staging: nginx serving a staging build. Set API_PROXY_TARGET in .env.docker.staging.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_CONFIGURATION: staging
+    ports:
+      - "4290:80"
+    env_file:
+      - .env.docker.staging
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

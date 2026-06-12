@@ -1,0 +1,6 @@
+export const environment = {
+  production: false,
+  apiBaseUrl: '/api',
+  googleClientId:
+    '374217524794-en2th0ht6l7dvdu4f24oronhgm8447rn.apps.googleusercontent.com'
+};

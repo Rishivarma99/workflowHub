@@ -1,0 +1,14 @@
+# Production: nginx serving the production build. Set API_PROXY_TARGET in .env.docker.prod.
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BUILD_CONFIGURATION: production
+    ports:
+      - "80:80"
+    env_file:
+      - .env.docker.prod
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

@@ -13,6 +13,9 @@ npm-debug.log*
 
 # ---- Env / secrets ----
 *.env
+.env.docker
+.env.docker.staging
+.env.docker.prod
 .env.local
 appsettings.*.Local.json
 
